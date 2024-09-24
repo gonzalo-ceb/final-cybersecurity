@@ -1,4 +1,5 @@
 # myapp/models.py
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -9,8 +10,15 @@ class CustomUser(AbstractUser):
     )
     user_type = models.CharField(max_length=15, choices=USER_TYPES, default='cliente')
 
+    # Almacena el código OTP temporal
+    otp_code = models.IntegerField(null=True, blank=True)
+
+    # Bandera para saber si el OTP ha sido verificado
+    otp_verified = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.username} ({self.get_user_type_display()})"
+
 
 class Transportista(models.Model):
     nombre = models.CharField(max_length=100)

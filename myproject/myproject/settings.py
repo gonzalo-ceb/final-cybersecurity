@@ -15,6 +15,12 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Cambia a tu servidor SMTP
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'sandra.gonzalez.ceb@immune.institute'  # Cambia a tu dirección de correo
+EMAIL_HOST_PASSWORD = 'pgjo fyzl xrez hirn'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -43,9 +49,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'myapp',
     'rest_framework',
-    'django_otp',
+    'django_otp',  # Autenticación OTP
+    'django_otp.plugins.otp_static',  # OTP basado en códigos
     'django_otp.plugins.otp_email',
-    'two_factor',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_otp.middleware.OTPMiddleware',
+    'django_otp.middleware.OTPMiddleware'
 ]
 
 ROOT_URLCONF = 'myproject.urls'

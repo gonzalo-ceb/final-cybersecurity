@@ -12,3 +12,6 @@ class CustomAuthenticationForm(AuthenticationForm):
     class Meta:
         model = CustomUser
         fields = ('username', 'password')
+
+class OTPForm(forms.Form):
+    otp = forms.CharField(label='Código OTP', max_length=6, widget=forms.TextInput(attrs={'placeholder': 'Introduce tu código OTP'}))
