@@ -1,115 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registrarse</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #f4f6f9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .card {
-      border-radius: 1rem;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .card-header {
-      background-color: #007bff;
-      color: white;
-      border-bottom: 1px solid #e9ecef;
-      border-top-left-radius: 1rem;
-      border-top-right-radius: 1rem;
-      text-align: center;
-      padding: 1rem;
-    }
-    .card-body {
-      padding: 2rem;
-    }
-    .form-control {
-      border-radius: 0.375rem;
-    }
-    .btn-primary {
-      background-color: #007bff;
-      border: none;
-      border-radius: 0.375rem;
-      padding: 0.75rem;
-      font-size: 1rem;
-    }
-    .btn-primary:hover {
-      background-color: #0056b3;
-    }
-    .card-footer {
-      background-color: #f8f9fa;
-      padding: 1rem;
-      border-top: 1px solid #e9ecef;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-      <div class="card">
-        <div class="card-header">
-          <h4>Regístrate</h4>
-        </div>
-        <div class="card-body">
-          <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-              <label for="id_username" class="form-label">Nombre de Usuario</label>
-              <input type="text" name="username" id="id_username" class="form-control" placeholder="Nombre de Usuario">
-              {% if form.username.errors %}
-              <div class="text-danger">
-                {% for error in form.username.errors %}
-                <div>{{ error }}</div>
-                {% endfor %}
-              </div>
-              {% endif %}
-            </div>
-            <div class="mb-3">
-              <label for="id_password1" class="form-label">Contraseña</label>
-              <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Contraseña">
-              {% if form.password1.errors %}
-              <div class="text-danger">
-                {% for error in form.password1.errors %}
-                <div>{{ error }}</div>
-                {% endfor %}
-              </div>
-              {% endif %}
-            </div>
-            <div class="mb-3">
-              <label for="id_password2" class="form-label">Confirmar Contraseña</label>
-              <input type="password" name="password2" id="id_password2" class="form-control" placeholder="Confirmar Contraseña">
-              {% if form.password2.errors %}
-              <div class="text-danger">
-                {% for error in form.password2.errors %}
-                <div>{{ error }}</div>
-                {% endfor %}
-              </div>
-              {% endif %}
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Registrarse</button>
-          </form>
-        </div>
-        <div class="card-footer">
-          <p>¿Ya tienes cuenta? <a href="{% url 'login' %}" class="text-primary">Inicia sesión aquí</a></p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Bootstrap Bundle with Popper -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+  </head>
+  <body>
+    <h2>Registro</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Registrarse</button>
+    </form>
+  </body>
 </html>
-

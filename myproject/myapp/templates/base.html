@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">Transportes XYZ</a>
+  <div class="collapse navbar-collapse">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Inicio</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Mi Perfil</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'support' %}">Soporte</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  {% block content %}
+  <!-- El contenido específico para clientes o transportistas se insertará aquí -->
+  {% endblock %}
+</div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

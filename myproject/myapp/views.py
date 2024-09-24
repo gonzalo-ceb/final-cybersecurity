@@ -1,32 +1,21 @@
+# myapp/views.py
+from django.contrib.auth import login
+from django.urls import reverse_lazy
+from django.views.generic.edit import FormView
+from django.contrib.auth.views import LoginView
+from .forms import CustomUserCreationForm, CustomAuthenticationForm
 
-from django.contrib.auth import authenticate, login as auth_login
-from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.forms import AuthenticationForm
+class UserRegisterView(FormView):
+    template_name = 'register.html'
+    form_class = CustomUserCreationForm
+    success_url = reverse_lazy('login')
 
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        return super().form_valid(form)
 
-def home_view(request):
-    return render(request, 'home.html')
+class UserLoginView(LoginView):
+    template_name = 'login.html'
+    authentication_form = CustomAuthenticationForm
 
-def register_view(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-    else:
-        form = UserCreationForm()
-
-    return render(request, 'register.html', {'form': form})
-
-def login_view(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            auth_login(request, user)
-            return redirect('home')  # Cambia 'home' por la vista a la que quieres redirigir después del inicio de sesión
-    else:
-        form = AuthenticationForm()
-
-    return render(request, 'login.html', {'form': form})
