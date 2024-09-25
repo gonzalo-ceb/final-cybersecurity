@@ -13,6 +13,7 @@ from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django.contrib.auth.views import LoginView
+from django.contrib.auth import logout
 from .forms import CustomUserCreationForm, CustomAuthenticationForm
 
 
@@ -27,6 +28,12 @@ class UserRegisterView(FormView):
         user = form.save()
         login(self.request, user)
         return super().form_valid(form)
+
+def logout_view(request):
+    # Cierra la sesión
+    logout(request)
+    # Redirecciona al usuario a la página de inicio u otra URL después del cierre de sesión
+    return redirect('home')
 
 class UserLoginView(LoginView):
     template_name = 'login.html'

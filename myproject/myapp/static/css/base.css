@@ -1,0 +1,59 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+header {
+    font-family: 'Raleway', sans-serif;
+    position: relative;
+    height: 15vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('../images/road.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 0 30px;
+}
+
+header nav {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.gradiente {
+    font-size: 1.7rem;
+    position: relative;
+    display: inline-block;
+    background: linear-gradient(45deg, #7B79FF, #F96AFF);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 100%;
+    background-position: center;
+    padding-bottom: 1px;
+}
+
+.gradiente::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: linear-gradient(45deg, #7B79FF, #F96AFF);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.gradiente:hover::after {
+    opacity: 1;
+}
