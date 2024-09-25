@@ -1,26 +1,69 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificar OTP</title>
-</head>
-<body>
-<h2>Verificar OTP</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Verificar</button>
-</form>
+{% extends 'base.html' %}
 
-{% if request.method == "POST" %}
-    {% if messages %}
-    <ul>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-{% endif %}
-</body>
-</html>
+{% block content %}
+    <div class="form_container">
+        <div class="form_box">
+            <h2>Consulte su email</h2>
+
+            <p>El código OTP expira en <span id="countdown">{{ time_remaining }}</span> segundos.</p>
+			<br><br>
+
+            <form id="otp-form" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" id="verify-btn" class="btn_submit">Verificar</button>
+            </form>
+
+            <button id="resend-btn" class="btn_submit" style="display: none;" onclick="resendOTP()">Volver a enviar código</button>
+
+            {% if request.method == "POST" %}
+                {% if messages %}
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        var timeRemaining = parseInt(document.getElementById('countdown').innerText);
+
+        function updateCountdown() {
+            if (timeRemaining > 0) {
+                timeRemaining -= 1;
+                document.getElementById('countdown').innerText = timeRemaining;
+            } else {
+                document.getElementById('verify-btn').style.display = 'none';
+                document.getElementById('resend-btn').style.display = 'inline-block';
+            }
+        }
+
+        setInterval(updateCountdown, 1000);
+
+        function resendOTP() {
+            fetch("{% url 'resend_otp' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    timeRemaining = data.time_remaining;
+                    document.getElementById('countdown').innerText = timeRemaining;
+
+                    document.getElementById('verify-btn').style.display = 'inline-block';
+                    document.getElementById('resend-btn').style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error al reenviar el OTP:', error));
+        }
+    </script>
+{% endblock %}
+

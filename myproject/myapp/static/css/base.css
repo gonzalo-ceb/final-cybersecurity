@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Raleway', sans-serif;
 }
 
 html {
@@ -9,30 +10,51 @@ html {
 }
 
 header {
-    font-family: 'Raleway', sans-serif;
     position: relative;
-    height: 15vh;
+    height: 8vh;
     display: flex;
     align-items: center;
-    justify-content: center;
-    background-image: url('../images/road.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    justify-content: space-between;
+    background: #f7f7f7;
     padding: 0 30px;
+    color: black;
+}
+
+.logo {
+    position: absolute;
+    left: 30px;
+    z-index: 2;
+}
+
+.logo img {
+    height: 70px;
 }
 
 header nav {
     display: flex;
-    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
     gap: 20px;
+    z-index: 2;
 }
+
+.gradiente {
+    font-size: 1.7rem;
+    background: linear-gradient(45deg, #ffe53b, #ff2525);
+    -webkit-background-clip: text;
+    color: transparent;
+    background-size: 200% 100%;
+    background-position: center;
+    padding-bottom: 1px;
+}
+
 
 .gradiente {
     font-size: 1.7rem;
     position: relative;
     display: inline-block;
-    background: linear-gradient(45deg, #7B79FF, #F96AFF);
+    background: linear-gradient(45deg, #ffe53b, #ff2525);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -49,11 +71,21 @@ header nav {
     right: 0;
     bottom: 0;
     height: 2px;
-    background: linear-gradient(45deg, #7B79FF, #F96AFF);
+    background: linear-gradient(45deg, #ffe53b, #ff2525);
     opacity: 0;
     transition: opacity 0.3s;
 }
 
 .gradiente:hover::after {
     opacity: 1;
+}
+
+footer {
+    height: 5vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(45deg, #ffe53b, #ff2525);
+    width: 100%;
+    color: white;
 }

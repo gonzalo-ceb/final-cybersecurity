@@ -1,18 +1,29 @@
-<!DOCTYPE html>
-<html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Iniciar sesión</title>
-    </head>
-    <body>
-        <h2>Iniciar Sesión</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Ingresar</button>
-        </form>
-    </body>
-</html>
+{% extends 'base.html' %}
 
+{% block content %}
+    <div class="form_container">
+        <div class="form_box">
+            <h2>Iniciar Sesión</h2>
+
+            {% if request.method == "POST" and messages %}
+                <div id="messages">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <label for="{{ form.username.id_for_label }}">Nombre de usuario:</label>
+                {{ form.username }}
+
+                <label for="{{ form.password.id_for_label }}">Contraseña:</label>
+                {{ form.password }}
+
+                <button type="submit" class="btn_submit">Ingresar</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
 

@@ -2,13 +2,12 @@ from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.contrib.auth import login
 from django import forms
-from django.contrib.auth.mixins import LoginRequiredMixin
 from datetime import timedelta
+from django.http import BadHeaderError, JsonResponse
 from django.utils import timezone
 from django.shortcuts import redirect, render
 from django.core.mail import send_mail
 import random
-from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
@@ -22,22 +21,27 @@ User = get_user_model()
 class UserRegisterView(FormView):
     template_name = 'register.html'
     form_class = CustomUserCreationForm
-    success_url = reverse_lazy('login')
 
     def form_valid(self, form):
-        user = form.save()
-        login(self.request, user)
-        return super().form_valid(form)
+        form.save()
+
+        messages.success(self.request, 'Se ha registrado correctamente, redirigiendo a inicio de sesión...')
+
+        return self.render_to_response(self.get_context_data(form=form))
 
 def logout_view(request):
-    # Cierra la sesión
     logout(request)
-    # Redirecciona al usuario a la página de inicio u otra URL después del cierre de sesión
+
+    if 'messages' in request.session:
+        del request.session['messages']
+
     return redirect('home')
 
 class UserLoginView(LoginView):
     template_name = 'login.html'
     authentication_form = CustomAuthenticationForm
+
+    OTP_VALIDITY_PERIOD = timedelta(minutes=5)
 
     def form_valid(self, form):
         user = form.get_user()
@@ -47,38 +51,52 @@ class UserLoginView(LoginView):
         self.send_otp(user)
         return redirect('verify_otp')
 
-    def send_otp(self, user):
-        otp_code = random.randint(100000, 999999)
-        user.otp_code = otp_code
-        user.otp_created_at = timezone.now()
-        user.save()
+    def form_invalid(self, form):
+        messages.error(self.request, 'Credenciales incorrectas. Intenta de nuevo.')
+        return super().form_invalid(form)
 
-        send_mail(
-            subject="Tu código de verificación OTP",
-            message=f"Tu código OTP es {otp_code}.",
-            from_email="sandra.gonzalez.ceb@gmail.com",
-            recipient_list=[user.email],
-        )
+    def send_otp(self, user):
+        if user.otp_created_at and timezone.now() < user.otp_created_at + self.OTP_VALIDITY_PERIOD:
+            otp_code = user.otp_code
+        else:
+            otp_code = random.randint(100000, 999999)
+            user.otp_code = otp_code
+            user.otp_created_at = timezone.now()
+            user.save()
+
+        try:
+            send_mail(
+                subject="Tu código de verificación OTP",
+                message=f"Tu código OTP es {otp_code}.",
+                from_email="sandra.gonzalez.ceb@gmail.com",
+                recipient_list=[user.email],
+            )
+        except BadHeaderError:
+            messages.error(self.request, "Hubo un problema al enviar el correo de verificación. Inténtalo de nuevo.")
 
 
 class OTPForm(forms.Form):
     otp_code = forms.IntegerField(label='Código OTP')
 
 
-OTP_VALIDITY_PERIOD = timedelta(minutes=10)
-
 class VerifyOTPView(View):
+    OTP_VALIDITY_PERIOD = timedelta(minutes=5)
     def get(self, request):
-        # Mostrar el formulario de verificación de OTP
         form = OTPForm()
-        return render(request, 'verify_otp.html', {'form': form})
+
+        user_id = request.session.get('otp_user_id')
+        user = User.objects.get(id=user_id)
+
+        expiration_time = user.otp_created_at + self.OTP_VALIDITY_PERIOD
+        time_remaining = (expiration_time - timezone.now()).total_seconds()
+
+        return render(request, 'verify_otp.html', {'form': form, 'time_remaining': int(time_remaining)})
 
     def post(self, request):
         form = OTPForm(request.POST)
         if form.is_valid():
             otp_input = form.cleaned_data.get('otp_code')
 
-            # Buscar el usuario por el ID almacenado en la sesión
             if 'otp_user_id' in request.session:
                 try:
                     user = User.objects.get(id=request.session['otp_user_id'])
@@ -86,24 +104,20 @@ class VerifyOTPView(View):
                     messages.error(request, "Usuario no encontrado.")
                     return redirect('login')
 
-                # Verificar que el código OTP no haya expirado
-                if timezone.now() > user.otp_created_at + OTP_VALIDITY_PERIOD:
+                if timezone.now() > user.otp_created_at + self.OTP_VALIDITY_PERIOD:
                     messages.error(request, "El código OTP ha expirado.")
                     return redirect('login')
 
                 if user.otp_code == otp_input:
-                    # OTP correcto, marcar como verificado
                     user.otp_verified = True
                     user.save()
 
-                    # Iniciar sesión manualmente al usuario
                     login(request, user)
 
-                    # Borrar el ID del usuario de la sesión
                     del request.session['otp_user_id']
 
                     messages.success(request, "Código OTP verificado correctamente.")
-                    return redirect('home')  # Redirige a la página principal o donde prefieras
+                    return redirect('home')
                 else:
                     messages.error(request, "Código OTP incorrecto.")
             else:
@@ -111,6 +125,30 @@ class VerifyOTPView(View):
 
         return render(request, 'verify_otp.html', {'form': form})
 
+def resend_otp_view(request):
+    user_id = request.session.get('otp_user_id')
+
+    if not user_id:
+        return JsonResponse({'error': 'No se encontró el usuario.'}, status=400)
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'Usuario no encontrado.'}, status=404)
+
+    otp_code = random.randint(100000, 999999)
+    user.otp_code = otp_code
+    user.otp_created_at = timezone.now()
+    user.save()
+
+    send_mail(
+        subject="Tu nuevo código de verificación OTP",
+        message=f"Tu nuevo código OTP es {otp_code}.",
+        from_email="sandra.gonzalez.ceb@gmail.com",
+        recipient_list=[user.email],
+    )
+
+    return JsonResponse({'message': 'Nuevo OTP enviado con éxito.', 'time_remaining': 300})
 
 class HomeView(TemplateView):
     template_name = 'home.html'
