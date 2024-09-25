@@ -1,50 +1,34 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Empresa de Transportes - Inicio</title>
-</head>
-<body>
-	{% extends 'base.html' %}
+{% extends 'base.html' %}
 
-	<header>
-	  <h1>Bienvenidos a Transportes XYZ</h1>
-	  <p>Servicio de transporte de carga seguro y confiable</p>
-	</header>
+{% block title %}
+    Empresa de Transportes - Inicio
+{% endblock %}
 
-	<nav>
-	  <a href="#">Inicio</a>
-	  <a href="#">Servicios</a>
-	  <a href="#">Contacto</a>
-	  <a href="#">Sobre Nosotros</a>
-	</nav>
+{% block content %}
+    <header>
+        <h1>Bienvenidos a Transportes XYZ</h1>
+        <p>Servicio de transporte de carga seguro y confiable</p>
+    </header>
 
-	<div class="hero">
-	  <h1>Moviendo tu mundo, con seguridad</h1>
-	</div>
+    <div class="hero">
+        <h1>Moviendo tu mundo, con seguridad</h1>
+    </div>
 
-	<div class="container">
-		<h2>Nuestros Servicios</h2>
-		<div class="features">
-			<div class="feature">
-				<h3>Transporte de carga pesada</h3>
-				<p>Soluciones confiables para grandes empresas.</p>
-			</div>
-			<div class="feature">
-				<h3>Logística internacional</h3>
-				<p>Llegamos a cualquier parte del mundo.</p>
-			</div>
-			<div class="feature">
-				<h3>Transporte urgente</h3>
-				<p>Entrega rápida y segura cuando más lo necesitas.</p>
-			</div>
-		</div>
-	</div>
-
-<footer>
-	<p>&copy; 2024 Transportes XYZ. Todos los derechos reservados.</p>
-</footer>
-
-</body>
-</html>
+    <div class="container">
+        <h2>Nuestros Servicios</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>Transporte de carga pesada</h3>
+                <p>Soluciones confiables para grandes empresas.</p>
+            </div>
+            <div class="feature">
+                <h3>Logística internacional</h3>
+                <p>Llegamos a cualquier parte del mundo.</p>
+            </div>
+            <div class="feature">
+                <h3>Transporte urgente</h3>
+                <p>Entrega rápida y segura cuando más lo necesitas.</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -3,36 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="author" content="Gonzalo Celaya">
-	<meta name="description" content="Galería de arte moderno">
+    <meta name="author" content="Gonzalo Celaya">
+    <meta name="description" content="Galería de arte moderno">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}RoadMasters{% endblock %}</title>
-	{% load static %}
-	<link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+    {% load static %}
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                {% if user.is_authenticated %}
-                {% else %}
-                    <li><a href="{% url 'login' %}">Iniciar sesión</a></li>
-                    <li><a href="{% url 'register' %}">Registrarse</a></li>
-                {% endif %}
-                <li><a href="{% url 'home' %}">Inicio</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <div class="container">
-        {% block content %}
-        {% endblock %}
-    </div>
+<header>
+    <nav>
+        <ul>
+            {% if user.is_authenticated %}
+                <li>
+                    <form method="POST" action="{% url 'logout' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="background:none; border:none; color:blue; text-decoration:underline; cursor:pointer;">Cerrar sesión
+                        </button>
+                    </form>
+                </li>
+            {% else %}
+                <li><a href="{% url 'login' %}">Iniciar sesión</a></li>
+                <li><a href="{% url 'register' %}">Registrarse</a></li>
+            {% endif %}
+            <li><a href="{% url 'home' %}">Inicio</a></li>
+        </ul>
+    </nav>
+</header>
 
-    <footer>
-        <p>&copy; RoadMasters, 2024</p>
-    </footer>
+<div class="container">
+    {% block content %}
+    {% endblock %}
+</div>
+
+<footer>
+    <p>&copy; RoadMasters, 2024</p>
+</footer>
 
 </body>
 </html>
+
 

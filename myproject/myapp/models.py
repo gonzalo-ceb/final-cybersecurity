@@ -16,6 +16,9 @@ class CustomUser(AbstractUser):
     # Bandera para saber si el OTP ha sido verificado
     otp_verified = models.BooleanField(default=False)
 
+    # Almacena la hora en la que se generó el OTP
+    otp_created_at = models.DateTimeField(null=True, blank=True)  # Nuevo campo
+
     def __str__(self):
         return f"{self.username} ({self.get_user_type_display()})"
 

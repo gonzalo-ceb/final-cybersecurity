@@ -34,8 +34,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'myapp.CustomUser'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
 TWO_FACTOR_LOGIN_URL = 'two_factor:login'
 
 # Application definition
@@ -49,8 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'myapp',
     'rest_framework',
-    'django_otp',  # Autenticación OTP
-    'django_otp.plugins.otp_static',  # OTP basado en códigos
+    'django_otp',
+    'django_otp.plugins.otp_static',
     'django_otp.plugins.otp_email',
 ]
 
