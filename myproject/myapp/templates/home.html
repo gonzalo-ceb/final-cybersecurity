@@ -1,112 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Empresa de Transportes - Inicio</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background-color: #0044cc;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    nav {
-      margin: 20px;
-      text-align: center;
-    }
-    nav a {
-      margin: 0 15px;
-      color: #0044cc;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .hero {
-      background-image: url('https://example.com/hero-image.jpg'); /* Reemplaza con una imagen real */
-      background-size: cover;
-      background-position: center;
-      height: 400px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      text-align: center;
-    }
-    .hero h1 {
-      font-size: 48px;
-      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-    }
-    .features {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 30px;
-    }
-    .feature {
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      width: 30%;
-      text-align: center;
-    }
-    footer {
-      background-color: #0044cc;
-      color: white;
-      padding: 10px;
-      text-align: center;
-      margin-top: 40px;
-    }
-  </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Empresa de Transportes - Inicio</title>
 </head>
 <body>
+	{% extends 'base.html' %}
 
-<header>
-  <h1>Bienvenidos a Transportes XYZ</h1>
-  <p>Servicio de transporte de carga seguro y confiable</p>
-</header>
+	<header>
+	  <h1>Bienvenidos a Transportes XYZ</h1>
+	  <p>Servicio de transporte de carga seguro y confiable</p>
+	</header>
 
-<nav>
-  <a href="#">Inicio</a>
-  <a href="#">Servicios</a>
-  <a href="#">Contacto</a>
-  <a href="#">Sobre Nosotros</a>
-</nav>
+	<nav>
+	  <a href="#">Inicio</a>
+	  <a href="#">Servicios</a>
+	  <a href="#">Contacto</a>
+	  <a href="#">Sobre Nosotros</a>
+	</nav>
 
-<div class="hero">
-  <h1>Moviendo tu mundo, con seguridad</h1>
-</div>
+	<div class="hero">
+	  <h1>Moviendo tu mundo, con seguridad</h1>
+	</div>
 
-<div class="container">
-  <h2>Nuestros Servicios</h2>
-  <div class="features">
-    <div class="feature">
-      <h3>Transporte de carga pesada</h3>
-      <p>Soluciones confiables para grandes empresas.</p>
-    </div>
-    <div class="feature">
-      <h3>Logística internacional</h3>
-      <p>Llegamos a cualquier parte del mundo.</p>
-    </div>
-    <div class="feature">
-      <h3>Transporte urgente</h3>
-      <p>Entrega rápida y segura cuando más lo necesitas.</p>
-    </div>
-  </div>
-</div>
+	<div class="container">
+		<h2>Nuestros Servicios</h2>
+		<div class="features">
+			<div class="feature">
+				<h3>Transporte de carga pesada</h3>
+				<p>Soluciones confiables para grandes empresas.</p>
+			</div>
+			<div class="feature">
+				<h3>Logística internacional</h3>
+				<p>Llegamos a cualquier parte del mundo.</p>
+			</div>
+			<div class="feature">
+				<h3>Transporte urgente</h3>
+				<p>Entrega rápida y segura cuando más lo necesitas.</p>
+			</div>
+		</div>
+	</div>
 
 <footer>
-  <p>&copy; 2024 Transportes XYZ. Todos los derechos reservados.</p>
+	<p>&copy; 2024 Transportes XYZ. Todos los derechos reservados.</p>
 </footer>
 
 </body>
