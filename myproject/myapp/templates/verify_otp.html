@@ -13,12 +13,14 @@
     <button type="submit">Verificar</button>
 </form>
 
-{% if messages %}
-<ul>
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-</ul>
+{% if request.method == "POST" %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
 {% endif %}
 </body>
 </html>

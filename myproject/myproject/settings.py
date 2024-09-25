@@ -20,7 +20,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Cambia a tu servidor SMTP
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'sandra.gonzalez.ceb@immune.institute'  # Cambia a tu dirección de correo
+EMAIL_HOST_USER = 'sandra.gonzalez.ceb@immune.institute'
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 # Quick-start development settings - unsuitable for production
