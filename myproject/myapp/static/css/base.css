@@ -10,59 +10,53 @@ html {
 }
 
 header {
-    position: relative;
-    height: 8vh;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #f7f7f7;
+    height: 8vh;
     padding: 0 30px;
-    color: black;
+    background: #f7f7f7;
 }
 
 .logo {
-    position: absolute;
-    margin-top: 15px;
-    left: 70px;
-    z-index: 2;
+    flex: 1;
 }
 
 .logo img {
     height: 50px;
 }
 
-header nav {
+.main-nav {
     display: flex;
     justify-content: center;
-    align-items: center;
-    flex-grow: 1;
     gap: 40px;
-    z-index: 2;
+    flex: 1;
+    text-align: center;
+}
+
+.session-links {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+    flex: 1;
+}
+
+nav a, .session-links a {
+    text-decoration: none;
+    color: inherit;
 }
 
 .gradiente {
     font-size: 1.4rem;
-    background: linear-gradient(45deg, #ffe53b, #ff2525);
-    -webkit-background-clip: text;
-    color: transparent;
-    background-size: 200% 100%;
-    background-position: center;
-    padding-bottom: 1px;
-}
-
-
-.gradiente {
-    font-size: 1.4rem;
-    position: relative;
-    display: inline-block;
     background: linear-gradient(45deg, #ffe53b, #ff2525);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    -webkit-text-fill-color: transparent;
     background-size: 200% 100%;
     background-position: center;
     padding-bottom: 1px;
+    position: relative;
 }
 
 .gradiente::after {

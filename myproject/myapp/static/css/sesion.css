@@ -114,6 +114,32 @@ form input {
     width: 100%;
 }
 
+.gradiente_peque {
+    background: linear-gradient(45deg, #ffe53b, #ff2525);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    background-size: 200% 100%;
+    background-position: center;
+    padding-bottom: 1px;
+    position: relative;
+}
+.gradiente_peque::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(45deg, #ffe53b, #ff2525);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.gradiente_peque:hover::after {
+    opacity: 1;
+}
+
 .btn_submit:hover {
     background-color: #FF9432;
 }
@@ -123,4 +149,3 @@ form input {
         padding: 20px 40px;
     }
 }
-
