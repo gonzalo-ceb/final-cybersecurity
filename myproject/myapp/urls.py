@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views
-from django.contrib.auth import views as auth_views
 from .views import UserRegisterView, UserLoginView, VerifyOTPView, HomeView, logout_view, resend_otp_view
 
 urlpatterns = [

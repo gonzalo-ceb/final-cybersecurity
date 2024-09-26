@@ -1,79 +1,83 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="form_container">
-        <div class="form_box">
-            <h2>Registro</h2>
+	<div class="form_container">
+		<div class="form_box">
+			<h2>Registro</h2>
 
-            {% if messages %}
-                <div id="messages">
-                    {% for message in messages %}
-                        <div class="message {{ message.tags }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
+			{% if messages %}
+				<div id="messages">
+					{% for message in messages %}
+						<div class="message {{ message.tags }}">{{ message }}</div>
+					{% endfor %}
+				</div>
 				<br><br>
-            {% endif %}
+			{% endif %}
 
-            <form method="post">
-                {% csrf_token %}
-                <label for="{{ form.username.id_for_label }}"><strong>Nombre de usuario:</strong></label>
-                {{ form.username }}
-                {% if form.username.errors %}
-                    <div class="error">
-                        {{ form.username.errors }}
-                    </div>
-                {% endif %}
-                <br><br>
+			<form method="post">
+				{% csrf_token %}
 
-                <label for="{{ form.email.id_for_label }}">Correo electrónico:</label>
-                {{ form.email }}
-                {% if form.email.errors %}
-                    <div class="error">
-                        {{ form.email.errors }}
-                    </div>
-                {% endif %}
-                <br><br>
+				<label for="{{ form.username.id_for_label }}"><strong>Nombre de usuario:</strong></label>
+				{{ form.username }}
+				{% if form.username.errors %}
+					<div class="error">
+						{{ form.username.errors }}
+					</div>
+				{% endif %}
+				<br><br>
 
-                <label for="{{ form.user_type.id_for_label }}"><strong>Tipo de usuario:</strong></label><br>
-                {{ form.user_type }}
-                {% if form.user_type.errors %}
-                    <div class="error">
-                        {{ form.user_type.errors }}
-                    </div>
-                {% endif %}
-                <br><br>
+				<label for="{{ form.email.id_for_label }}">Correo electrónico:</label>
+				{{ form.email }}
+				{% if form.email.errors %}
+					<div class="error">
+						{{ form.email.errors }}
+					</div>
+				{% endif %}
+				<br><br>
 
-                <label for="{{ form.password1.id_for_label }}">Contraseña:</label>
-                {{ form.password1 }}
-                {% if form.password1.errors %}
-                    <div class="error">
-                        {{ form.password1.errors }}
-                    </div>
-                {% endif %}
-                <br><br>
+				<div class="form-group">
+					<label for="{{ form.user_type.id_for_label }}"><strong>Tipo de usuario:</strong></label>
+					{{ form.user_type }}
+					{% if form.user_type.errors %}
+						<div class="error">
+							{{ form.user_type.errors }}
+						</div>
+					{% endif %}
+				</div>
 
-                <label for="{{ form.password2.id_for_label }}">Confirmación de contraseña:</label>
-                {{ form.password2 }}
-                {% if form.password2.errors %}
-                    <div class="error">
-                        {{ form.password2.errors }}
-                    </div>
-                {% endif %}
-                <br><br>
 
-                <button type="submit" class="btn_submit">Registrarse</button>
-            </form>
-        </div>
-    </div>
+				<label for="{{ form.password1.id_for_label }}">Contraseña:</label>
+				{{ form.password1 }}
+				{% if form.password1.errors %}
+					<div class="error">
+						{{ form.password1.errors }}
+					</div>
+				{% endif %}
+				<br><br>
 
-    <script>
-        setTimeout(function() {
+				<label for="{{ form.password2.id_for_label }}">Confirmación de contraseña:</label>
+				{{ form.password2 }}
+				{% if form.password2.errors %}
+					<div class="error">
+						{{ form.password2.errors }}
+					</div>
+				{% endif %}
+				<br><br>
+
+				<button type="submit" class="btn_submit">Registrarse</button>
+			</form>
+
+		</div>
+	</div>
+
+	<script>
+        setTimeout(function () {
             var messages = document.getElementById('messages');
             if (messages && messages.innerText.includes('Se ha registrado correctamente')) {
                 window.location.href = "{% url 'login' %}";
             }
         }, 2500);
-    </script>
+	</script>
 {% endblock %}
 
 
