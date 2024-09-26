@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django import forms
 from datetime import timedelta
+
+from django.contrib.auth.decorators import login_required
 from django.http import BadHeaderError, JsonResponse
 from django.utils import timezone
 from django.shortcuts import redirect, render
@@ -14,7 +16,7 @@ from django.views.generic.edit import FormView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout
 from .forms import CustomUserCreationForm, CustomAuthenticationForm
-
+from .models import SolicitudServicio, Ruta
 
 User = get_user_model()
 
@@ -153,3 +155,23 @@ def resend_otp_view(request):
 class HomeView(TemplateView):
     template_name = 'home.html'
 
+@login_required
+def crear_solicitud(request):
+    if request.method == "POST":
+        origen_id = request.POST.get("origen")
+        destino_id = request.POST.get("destino")
+        ruta = Ruta.objects.filter(id=origen_id).first()
+
+        if ruta:
+            nueva_solicitud = SolicitudServicio(
+                cliente=request.user,
+                ruta=ruta,
+                estado='pendiente'
+            )
+            nueva_solicitud.save()
+            return redirect('solicitud_exitosa')
+        else:
+            return render(request, 'solicitud_servicio.html', {'rutas': Ruta.objects.all(), 'error': 'Ruta no encontrada'})
+
+    rutas = Ruta.objects.all()
+    return render(request, 'solicitud_servicio.html', {'rutas': rutas})

@@ -1,4 +1,5 @@
 from django.urls import path
+from . import views
 from django.contrib.auth import views as auth_views
 from .views import UserRegisterView, UserLoginView, VerifyOTPView, HomeView, logout_view, resend_otp_view
 
@@ -9,4 +10,5 @@ urlpatterns = [
     path('verify-otp/', VerifyOTPView.as_view(), name='verify_otp'),
     path('resend-otp/', resend_otp_view, name='resend_otp'),
     path('', HomeView.as_view(), name='home'),
+    path('solicitud/', views.crear_solicitud, name='crear_solicitud'),
 ]
