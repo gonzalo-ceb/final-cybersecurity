@@ -1,7 +1,111 @@
-.contenedor_home1 {
-    height: 87vh;
+.contenedor_principal {
+    position: relative;
+    height: 92vh;
+    overflow: hidden;
 }
-.titulo {
-    display: flex;
+.contenedor_principal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("../images/carretera1.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    filter: blur(20px);
+    z-index: -1;
+}
+.contenedor_principal::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: -1;
+}
 
+.contenedor_titulo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    height: 45vh;
+    width: 100vw;
+}
+
+.titulo {
+    margin: 0;
+    letter-spacing: 5px;
+    font-size: 9rem;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(45deg, #ffe53b, #ff2525);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0;
+    animation: fadeIn 3s forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+
+.contenedor_descripcion {
+    height: 47vh;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+}
+.contenedor_descripcion h2 {
+    margin: 0px 300px 0px 300px;
+    text-align: center;
+    color: white;
+}
+
+.contenedor_descripcion a {
+    margin-top: 150px;
+    text-align: center;
+    text-decoration: none;
+}
+.contenedor_descripcion a h3 {
+    display: inline-block;
+    border: 2px solid white;
+    padding: 10px 30px;
+    background: transparent;
+    color: white;
+    font-size: 1.5rem;
+    border-radius: 10px;
+    transition: all 1s ease;
+    cursor: pointer;
+    gap: 3px;
+    white-space: nowrap;
+}
+.contenedor_descripcion a h3:hover {
+    background: linear-gradient(45deg, #ffe53b, #ff2525);
+    border: 0px;
+    border-color: transparent;
+    color: white;
+    transition: all 1s ease;
+}
+
+.transicion {
+    width: 100vw; /* Ocupa el 100% del ancho de la pantalla */
+    height: 400px; /* Puedes ajustar la altura si lo deseas */
+    background-image: url("../images/carretera2.jpg");
+    background-size: cover; /* Asegura que la imagen cubra todo el ancho */
+    background-position: center; /* Centra la imagen */
+    background-attachment: fixed; /* Crea el efecto parallax */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+}
+
+.contenedor_servicios {
+    width: 100vw;
+    height: 700px;
 }

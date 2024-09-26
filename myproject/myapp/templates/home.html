@@ -1,26 +1,37 @@
 {% extends 'base.html' %}
 
 {% block content %}
-	<div class="contenedor_home1">
-		<div class = "titulo">
-			<h1>Moviendo tu mundo, con seguridad</h1>
+	<div class="contenedor_principal">
+		<div class="contenedor_titulo">
+			<h1 class="titulo">RoadMasters</h1>
 		</div>
 
-		<div>
-			<h2>Nuestros Servicios</h2>
-			<div class="features">
-				<div class="feature">
-					<h3>Transporte de carga pesada</h3>
-					<p>Soluciones confiables para grandes empresas.</p>
-				</div>
-				<div class="feature">
-					<h3>Logística internacional</h3>
-					<p>Llegamos a cualquier parte del mundo.</p>
-				</div>
-				<div class="feature">
-					<h3>Transporte urgente</h3>
-					<p>Entrega rápida y segura cuando más lo necesitas.</p>
-				</div>
+		<div class="contenedor_descripcion">
+			<h2>Como empresa líder en transporte, ofrecemos una amplia gama de servicios que incluyen envío de carga,
+				gestión logística y soluciones para la cadena de suministro. Nuestra dedicación a la satisfacción del
+				cliente y nuestro enfoque en la sostenibilidad nos convierten en el socio ideal para todas tus
+				necesidades de transporte.</h2>
+			<a href="{% url 'register' %}"><h3>EMPEZAR</h3></a>
+		</div>
+	</div>
+
+	<div class="transicion">
+	</div>
+
+	<div class="contenedor_servicios">
+		<h2>Nuestros Servicios</h2>
+		<div class="features">
+			<div class="feature">
+				<h3>Soluciones logísticas</h3>
+				<p>Soluciones confiables para grandes empresas.</p>
+			</div>
+			<div class="feature">
+				<h3>Servicios de transporte</h3>
+				<p>Llegamos a cualquier parte del mundo.</p>
+			</div>
+			<div class="feature">
+				<h3>Expertos en entregas</h3>
+				<p>Entrega rápida y segura cuando más lo necesitas.</p>
 			</div>
 		</div>
 	</div>
