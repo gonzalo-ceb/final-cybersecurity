@@ -1,7 +1,5 @@
 # myapp/models.py
 import uuid
-from decimal import Decimal
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -12,14 +10,11 @@ class CustomUser(AbstractUser):
     )
     user_type = models.CharField(max_length=15, choices=USER_TYPES, default='cliente')
 
-    # Almacena el código OTP temporal
     otp_code = models.IntegerField(null=True, blank=True)
 
-    # Bandera para saber si el OTP ha sido verificado
     otp_verified = models.BooleanField(default=False)
 
-    # Almacena la hora en la que se generó el OTP
-    otp_created_at = models.DateTimeField(null=True, blank=True)  # Nuevo campo
+    otp_created_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.username} ({self.get_user_type_display()})"
@@ -49,6 +44,8 @@ class Ruta(models.Model):
     def __str__(self):
         return f"{self.origen} -> {self.destino}"
 
+from decimal import Decimal
+
 class SolicitudServicio(models.Model):
     cliente = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     ruta = models.ForeignKey(Ruta, on_delete=models.CASCADE)
@@ -59,18 +56,20 @@ class SolicitudServicio(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def calcular_precio(self):
-        # Define un precio fijo por kilómetro
-        precio_por_km = Decimal('1.50')  # Ejemplo de precio por km
-        distancia = self.ruta.distancia_km  # Usar la distancia de la ruta
-        return distancia * precio_por_km
+        precio_por_km = Decimal('0.16')
+        precio_por_kg = Decimal('0.50')
+        distancia = self.ruta.distancia_km
+        peso = self.peso
+
+        precio_total = (distancia * precio_por_km) + (peso * precio_por_kg)
+        return precio_total
 
     def save(self, *args, **kwargs):
-        if self.precio is None:  # Solo calcular si el precio no está ya asignado
+        if self.precio is None:
             self.precio = self.calcular_precio()
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"Solicitud {self.id} - {self.cliente.username} ({self.estado})"
+
 
 
 class ServicioAsignado(models.Model):

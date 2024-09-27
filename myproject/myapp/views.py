@@ -1,12 +1,10 @@
 import json
 from decimal import Decimal
-
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.contrib.auth import login
 from django import forms
 from datetime import timedelta
-
 from django.contrib.auth.decorators import login_required
 from django.http import BadHeaderError, JsonResponse
 from django.utils import timezone
@@ -29,16 +27,13 @@ class UserRegisterView(FormView):
     form_class = CustomUserCreationForm
 
     def form_valid(self, form):
-        # Guardar el usuario
         user = form.save()
 
-        # Comprobar el tipo de usuario y guardar en la tabla correspondiente
         if user.user_type == 'cliente':
             Cliente.objects.create(nombre=user.username, telefono="999999999", usuario=user)
         elif user.user_type == 'transportista':
             Transportista.objects.create(nombre=user.username, licencia_conducir="AB12345", telefono="999999999")
 
-        # Mostrar mensaje de éxito y redirigir
         messages.success(self.request, 'Se ha registrado correctamente, redirigiendo a inicio de sesión...')
         return redirect('login')
 def logout_view(request):
@@ -169,7 +164,6 @@ def resend_otp_view(request):
 class HomeView(TemplateView):
     template_name = 'home.html'
 
-
 @login_required
 def crear_solicitud(request):
     form = SolicitudServicioForm()
@@ -181,9 +175,13 @@ def crear_solicitud(request):
             solicitud = form.save(commit=False)
             solicitud.cliente = request.user
             solicitud.estado = 'pendiente'
-            solicitud.peso = Decimal(form.cleaned_data['peso'])
-            solicitud.calcular_precio()
+
+            precio_oficial = request.POST.get('precio_oficial')
+            if precio_oficial:
+                solicitud.precio = Decimal(precio_oficial)
+
             solicitud.save()
+
             messages.success(request, f'Solicitud enviada correctamente. Número de seguimiento: {solicitud.numero_seguimiento}')
             return redirect('crear_solicitud')
 
@@ -204,11 +202,10 @@ def rastrear_solicitud(request):
 
         if not id_solicitud:
             messages.error(request, 'Número de solicitud no proporcionado.')
-            return redirect('crear_solicitud')  # Redirige al formulario de solicitud
+            return redirect('crear_solicitud')
 
         try:
             solicitud = SolicitudServicio.objects.get(numero_seguimiento=id_solicitud)
-            # Muestra los detalles de la solicitud en un mensaje
             mensaje = (
                 f"Número de seguimiento: {solicitud.numero_seguimiento}<br>"
                 f"Estado: {solicitud.estado}<br>"
@@ -220,7 +217,7 @@ def rastrear_solicitud(request):
         except SolicitudServicio.DoesNotExist:
             messages.error(request, 'Solicitud no encontrada.')
 
-        return redirect('crear_solicitud')  # Redirige al formulario de solicitud
+        return redirect('crear_solicitud')
 
     return redirect('crear_solicitud')
 
@@ -228,10 +225,10 @@ def rastrear_solicitud(request):
 @login_required
 def transportista_solicitudes(request):
     if request.user.user_type != 'transportista':
-        return redirect('home')  # Redirige si no es un transportista
+        return redirect('home')
 
     solicitudes = SolicitudServicio.objects.filter(estado='pendiente')
-    camiones = Camion.objects.filter(transportista__nombre=request.user)
+    camiones = Camion.objects.filter(transportista__nombre=request.user.username)
 
     if request.method == 'POST':
         camion_id = request.POST.get('camion')
@@ -239,7 +236,6 @@ def transportista_solicitudes(request):
         solicitud_id = request.POST.get('solicitud_id')
         solicitud = SolicitudServicio.objects.get(id=solicitud_id)
 
-        # Asignar el camión y cambiar el estado de la solicitud
         ServicioAsignado.objects.create(solicitud=solicitud, camion=camion, transportista=request.user.transportista)
         solicitud.estado = 'asignado'
         solicitud.save()
@@ -264,14 +260,12 @@ def transportista_aceptar_solicitud(request, solicitud_id):
         camion_id = request.POST.get('camion')
         camion = get_object_or_404(Camion, id=camion_id, transportista__nombre=request.user.username)
 
-        # Asignar el camión y transportista a la solicitud
         servicio_asignado = ServicioAsignado.objects.create(
             solicitud=solicitud,
             camion=camion,
             transportista=request.user.transportista
         )
 
-        # cambiar el estado de la solicitud a "asignado"
         solicitud.estado = 'asignado'
         solicitud.save()
 
@@ -279,3 +273,27 @@ def transportista_aceptar_solicitud(request, solicitud_id):
         return redirect('transportista_solicitudes')
 
     return render(request, 'transportista_aceptar_solicitud.html', {'solicitud': solicitud, 'camiones': camiones})
+
+def calcular_precio_oficial(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            ruta_id = data.get('ruta_id')
+            peso = Decimal(data.get('peso'))
+
+            # Verifica que la ruta exista
+            ruta = Ruta.objects.get(id=ruta_id)
+
+            # Cálculo del precio
+            precio_por_km = Decimal('0.15')
+            precio_por_kg = Decimal('2')
+            distancia = ruta.distancia_km
+            precio_oficial = (distancia * precio_por_km) + (peso * precio_por_kg)
+
+            return JsonResponse({'precio_oficial': precio_oficial}, status=200)
+        except Ruta.DoesNotExist:
+            return JsonResponse({'error': 'Ruta no encontrada'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'error': 'Método no permitido'}, status=405)

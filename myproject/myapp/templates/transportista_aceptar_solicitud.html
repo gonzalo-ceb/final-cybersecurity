@@ -1,29 +1,40 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3>Solicitudes Pendientes</h3>
+	<h3>Solicitudes Pendientes</h3>
 
-{% for solicitud in solicitudes %}
-<div class="solicitud-card">
-  <h4>Solicitud #{{ solicitud.id }}</h4>
-  <p><strong>Ruta:</strong> {{ solicitud.ruta.origen }} -> {{ solicitud.ruta.destino }}</p>
-  <p><strong>Distancia:</strong> {{ solicitud.ruta.distancia_km }} km</p>
-  <p><strong>Peso:</strong> {{ solicitud.peso }} kg</p>
-  <p><strong>Precio:</strong> ${{ solicitud.precio }}</p>
+	{% if solicitudes %}
+		{% for solicitud in solicitudes %}
+			<div class="solicitud-card">
+				<h4>Solicitud #{{ solicitud.id }}</h4>
+				<p><strong>Ruta:</strong> {{ solicitud.ruta.origen }} -> {{ solicitud.ruta.destino }}</p>
+				<p><strong>Distancia:</strong> {{ solicitud.ruta.distancia_km }} km</p>
+				<p><strong>Peso:</strong> {{ solicitud.peso }} kg</p>
+				<p><strong>Precio:</strong> ${{ solicitud.precio }}</p>
 
-  <form method="post">
-    {% csrf_token %}
-    <input type="hidden" name="solicitud_id" value="{{ solicitud.id }}">
-    <label for="camion">Selecciona un camión:</label>
-    <select name="camion" required>
-      {% for camion in camiones %}
-      <option value="{{ camion.id }}">{{ camion.matricula }} - Capacidad: {{ camion.capacidad }} kg</option>
-      {% endfor %}
-    </select>
-    <button type="submit">Asignar Camión</button>
-  </form>
-</div>
-{% endfor %}
+				<form method="post">
+					{% csrf_token %}
+					<input type="hidden" name="solicitud_id" value="{{ solicitud.id }}">
+					<label for="camion">Selecciona un camión:</label>
 
+					{% if camiones %}
+						<select name="camion" required>
+							{% for camion in camiones %}
+								<option value="{{ camion.id }}">{{ camion.matricula }} -
+									Capacidad: {{ camion.capacidad }} kg
+								</option>
+							{% endfor %}
+						</select>
+					{% else %}
+						<p>No hay camiones disponibles.</p>
+					{% endif %}
 
+					<button type="submit">Asignar Camión</button>
+				</form>
+			</div>
+		{% endfor %}
+	{% else %}
+		<p>No hay solicitudes pendientes en este momento.</p>
+	{% endif %}
 {% endblock %}
+

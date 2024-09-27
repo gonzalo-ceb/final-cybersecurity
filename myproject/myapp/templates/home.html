@@ -11,7 +11,15 @@
 				gestión logística y soluciones para la cadena de suministro. Nuestra dedicación a la satisfacción del
 				cliente y nuestro enfoque en la sostenibilidad nos convierten en el socio ideal para todas tus
 				necesidades de transporte.</h2>
-			<a href="{% url 'register' %}"><h3>EMPEZAR</h3></a>
+			{% if user.is_authenticated %}
+				{% if user.user_type == "cliente" %}
+					<a href="{% url 'crear_solicitud' %}"><h3>EMPEZAR</h3></a>
+				{% elif user.user_type == "transportista" %}
+					<a href="{% url 'transportista_solicitudes' %}"><h3>EMPEZAR</h3></a>
+				{% endif %}
+			{% else %}
+				<a href="{% url 'register' %}"><h3>EMPEZAR</h3></a>
+			{% endif %}
 		</div>
 	</div>
 

@@ -1,166 +1,187 @@
 {% extends 'base.html' %}
 
 {% block content %}
-	<form method="post">
-		{% csrf_token %}
-		<div>
-			<h3>Crear nueva solicitud</h3>
-			<label for="ruta">Seleccione una ruta:</label>
-			{{ form.ruta }}
-			<label for="peso">Peso (kg):</label>
-			{{ form.peso }}
-			<p><strong>Precio total: $<span id="precio-total">0.00</span></strong></p>
-			<button type="submit" name="crear_solicitud">Enviar solicitud</button>
+	<div class="form_container">
+		<div class="form_box">
+			<h2>Crear nueva solicitud</h2>
+			<form id="solicitudForm" method="POST" action="{% url 'crear_solicitud' %}">
+				{% csrf_token %}
+				<div class="form-group">
+					<label for="ruta">Seleccione una ruta</label>
+					{{ form.ruta }}
+				</div>
+				<br>
+				<div class="form-group">
+					<label for="peso">Peso (kg)</label>
+					{{ form.peso }}
+				</div>
+				<div class="form-group">
+					<p><strong>Precio estimado: $<span id="precio-total">0.00</span></strong></p>
+				</div>
+				<button type="button" id="mostrarPopup" class="btn_submit">Enviar solicitud</button>
+			</form>
 		</div>
 
-	</form>
+		<div id="popup-confirmar" class="popup-overlay">
+			<div class="popup-box">
+				<h2>Confirmar solicitud</h2>
+				<br>
+				<p>El precio oficial es: <strong>$<span id="precio-oficial-popup">XXX</span></strong></p>
+				<p>¿Desea confirmar la solicitud?</p>
+				<button id="aceptarSolicitud" class="btn_submit">Aceptar</button>
+				<button id="cancelarSolicitud" class="btn_cancel">Cancelar</button>
+			</div>
+		</div>
 
-	<form method="post" action="{% url 'rastrear_solicitud' %}" class="formulario-rastreo">
-		{% csrf_token %}
-		<h2>Rastreo de Solicitudes</h2>
-		<label for="id_solicitud">Número de Solicitud</label>
-		<input type="text" id="id_solicitud" name="id_solicitud" class="input-solicitud"
-			   placeholder="Ingresa el número de solicitud" required>
-		<button type="submit" class="btn-rastreo">Rastrear</button>
-	</form>
+		<!-- Solicitudes -->
+		<div class="form_box">
+			<h2>Rastreo de Solicitudes</h2>
+			<form method="POST" action="{% url 'rastrear_solicitud' %}">
+				{% csrf_token %}
+				<div class="form-group">
+					<label for="id_solicitud">Número de Solicitud</label>
+					<input type="text" id="id_solicitud" name="id_solicitud" class="form-control"
+						   placeholder="Ingresa el número de solicitud" required>
+				</div>
+				<button type="submit" class="btn_submit">Rastrear</button>
+			</form>
+		</div>
 
-	<div id="popup-message" class="popup-hidden">
-		<div id="popup-content"></div>
-		<button id="close-popup" onclick="closePopup()">Cerrar</button>
+		<div class="form_box sobrante">
+			<h2>Mis Solicitudes</h2>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Ruta</th>
+						<th>Precio</th>
+						<th>Número de Seguimiento</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for solicitud in solicitudes %}
+					<tr>
+						<td>{{ solicitud.id }}</td>
+						<td>{{ solicitud.ruta }}</td>
+						<td>${{ solicitud.precio }}</td>
+						<td>{{ solicitud.numero_seguimiento }}</td>
+					</tr>
+					{% empty %}
+					<tr>
+						<td colspan="4">No tienes solicitudes registradas.</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
 	</div>
-
-	<h2>Mis Solicitudes</h2>
-	<table>
-		<thead>
-			<tr>
-				<th>ID</th>
-				<th>Ruta</th>
-				<th>Precio</th>
-				<th>Número de Seguimiento</th>
-			</tr>
-		</thead>
-		<tbody>
-		{% for solicitud in solicitudes %}
-			<tr>
-				<td>{{ solicitud.id }}</td>
-				<td>{{ solicitud.ruta }}</td>
-				<td>${{ solicitud.precio }}</td>
-				<td>{{ solicitud.numero_seguimiento }}</td>
-			</tr>
-			{% empty %}
-			<tr>
-				<td colspan="7">No tienes solicitudes registradas.</td>
-			</tr>
-		{% endfor %}
-		</tbody>
-	</table>
 
 	<script>
         document.addEventListener('DOMContentLoaded', function () {
+            const popupOverlay = document.getElementById('popup-confirmar');
+            const precioOficialPopup = document.getElementById('precio-oficial-popup');
+            const mostrarPopupButton = document.getElementById('mostrarPopup');
             const rutaSelect = document.getElementById('{{ form.ruta.id_for_label }}');
+            const pesoInput = document.getElementById('{{ form.peso.id_for_label }}');
             const precioTotalElement = document.getElementById('precio-total');
+            const precioOficialInput = document.createElement('input');
 
-            rutaSelect.addEventListener('change', function () {
-                const rutaId = rutaSelect.value;
+            precioOficialInput.setAttribute('type', 'hidden');
+            precioOficialInput.setAttribute('name', 'precio_oficial');
+            document.getElementById('solicitudForm').appendChild(precioOficialInput);
 
-                if (rutaId) {
-                    fetch(`/api/get-distancia-ruta/${rutaId}/`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.distancia) {
-                                const distancia = parseFloat(data.distancia);
-                                const precioPorKm = 0.50;  // Definir el precio por km
-                                const precioTotal = distancia * precioPorKm;
-                                precioTotalElement.textContent = precioTotal.toFixed(2);
-                            } else {
-                                precioTotalElement.textContent = '0.00';
-                            }
-                        })
-                        .catch(error => console.error('Error:', error));
-                } else {
-                    precioTotalElement.textContent = '0.00';
-                }
-            });
-        });
-
-
-        document.addEventListener('DOMContentLoaded', function () {
-            // Mostrar el pop-up cuando haya un mensaje de éxito
-            {% if messages %}
-                var popup = document.getElementById('popup-message');
-                var popupContent = document.getElementById('popup-content');
-                {% for message in messages %}
-                    popupContent.innerHTML = "{{ message }}";
-                {% endfor %}
-                popup.classList.add('popup-visible');
-                setTimeout(closePopup, 10000); // Ocultar después de 10 segundos
-            {% endif %}
-        });
-
-        document.getElementById('form-rastreo').addEventListener('submit', function (e) {
-            e.preventDefault(); // Evitar que el formulario recargue la página
-
-            const idSolicitud = document.getElementById('id_solicitud').value;
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-            fetch('/api/api/rastrear-solicitud/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({id_solicitud: idSolicitud})
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        showPopup(data.error);
-                    } else {
-                        const detallesSolicitud = `
-                    <h3>Detalles de la solicitud</h3>
-                    <p>Número de seguimiento: ${data.numero_seguimiento}</p>
-                    <p>Estado: ${data.estado}</p>
-                    <p>Peso: ${data.peso} kg</p>
-                    <p>Precio calculado: $${data.precio}</p>
-                `;
-                        showPopup(detallesSolicitud);
+            function getCSRFToken() {
+                let cookieValue = null;
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, 10) === 'csrftoken=') {
+                        cookieValue = decodeURIComponent(cookie.substring(10));
+                        break;
                     }
-                })
-                .catch(error => {
-                    showPopup('Error al rastrear la solicitud.');
-                    console.error('Error:', error);
-                });
-        });
-
-        function showPopup(message) {
-            var popup = document.getElementById('popup-message');
-            var popupContent = document.getElementById('popup-content');
-            popupContent.innerHTML = message;
-            popup.classList.add('popup-visible');
-            setTimeout(() => {
-                popup.classList.remove('popup-visible');
-            }, 10000); // Ocultar después de 10 segundos
-        }
-
-        function closePopup() {
-            var popup = document.getElementById('popup-message');
-            popup.classList.remove('popup-visible');
-        }
-	</script>
-	{% if messages %}
-		<script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const messages = {{ messages|safe }};
-                if (messages.length > 0) {
-                    let messageHtml = '';
-                    messages.forEach(msg => {
-                        messageHtml += `<p>${msg}</p>`;
-                    });
-                    showPopup(messageHtml);
                 }
+                return cookieValue;
+            }
+
+            function calcularPrecioEstimado() {
+                const rutaId = rutaSelect.value;
+                const peso = parseFloat(pesoInput.value);
+
+                if (!rutaId || isNaN(peso) || peso <= 0) {
+                    precioTotalElement.textContent = '0.00';
+                    return;
+                }
+
+                fetch(`/api/get-distancia-ruta/${rutaId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.distancia) {
+                            const distancia = parseFloat(data.distancia);
+                            const precioPorKm = 0.15;
+                            const precioPorKg = 0.50;
+                            const precioTotal = (distancia * precioPorKm) + (peso * precioPorKg);
+                            precioTotalElement.textContent = precioTotal.toFixed(2);
+                        } else {
+                            precioTotalElement.textContent = '0.00';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al obtener la distancia de la ruta:', error);
+                        precioTotalElement.textContent = '0.00';
+                    });
+            }
+
+            rutaSelect.addEventListener('change', calcularPrecioEstimado);
+            pesoInput.addEventListener('input', calcularPrecioEstimado);
+
+            mostrarPopupButton.addEventListener('click', function () {
+                const rutaId = rutaSelect.value;
+                const peso = parseFloat(pesoInput.value);
+
+                if (!rutaId || isNaN(peso)) {
+                    alert("Debe seleccionar una ruta y proporcionar un peso válido.");
+                    return;
+                }
+
+                fetch(`/api/calcular-precio-oficial/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify({
+                        'ruta_id': rutaId,
+                        'peso': peso
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Respuesta del servidor:", data);
+                        if (data.precio_oficial && !isNaN(data.precio_oficial)) {
+                            const precioOficial = parseFloat(data.precio_oficial).toFixed(2);
+
+                            precioOficialPopup.textContent = precioOficial;
+
+                            precioOficialInput.value = precioOficial;
+
+                            popupOverlay.classList.add('active'); // Mostrar el pop-up
+                        } else {
+                            alert('Error al calcular el precio oficial. El valor no es un número.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al obtener el precio oficial:', error);
+                    });
             });
-		</script>
-	{% endif %}
 
+            document.getElementById('aceptarSolicitud').addEventListener('click', function () {
+                popupOverlay.classList.remove('active'); // Ocultar el pop-up
+                document.getElementById('solicitudForm').submit();
+            });
 
+            document.getElementById('cancelarSolicitud').addEventListener('click', function () {
+                popupOverlay.classList.remove('active'); // Ocultar el pop-up
+            });
+        });
+	</script>
 {% endblock %}

@@ -32,10 +32,15 @@ class OTPForm(forms.Form):
 class SolicitudServicioForm(forms.ModelForm):
     class Meta:
         model = SolicitudServicio
-        fields = ['ruta', 'peso']  # Incluye el campo de peso
+        fields = ['ruta', 'peso']
+
+    ruta = forms.ModelChoiceField(
+        queryset=Ruta.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
     def clean_peso(self):
         peso = self.cleaned_data.get('peso')
-        if peso:
-            return Decimal(peso)  # Asegúrate de que el peso se maneje como Decimal
-        return peso
+        if not peso or peso <= 0:
+            raise forms.ValidationError('Debes ingresar un peso válido mayor que cero.')
+        return Decimal(peso)
