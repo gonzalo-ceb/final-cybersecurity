@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomUser, Transportista, Camion, Ruta, SolicitudServicio, ServicioAsignado, Factura
+from .models import CustomUser, Transportista, Camion, Ruta, SolicitudServicio, ServicioAsignado, Factura, Cliente
 
 # Registrar cada uno de los modelos
 admin.site.register(CustomUser)
@@ -9,4 +9,4 @@ admin.site.register(Ruta)
 admin.site.register(SolicitudServicio)
 admin.site.register(ServicioAsignado)
 admin.site.register(Factura)
-
+admin.site.register(Cliente)

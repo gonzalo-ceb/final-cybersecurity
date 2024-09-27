@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Solicitudes Pendientes para Transportistas</h2>
+<table>
+    <tr>
+        <th>ID Solicitud</th>
+        <th>Cliente</th>
+        <th>Ruta</th>
+        <th>Acción</th>
+    </tr>
+    {% for solicitud in solicitudes %}
+    <tr>
+        <td>{{ solicitud.id }}</td>
+        <td>{{ solicitud.cliente.username }}</td>
+        <td>{{ solicitud.ruta.origen }} -> {{ solicitud.ruta.destino }}</td>
+        <td><a href="{% url 'transportista_aceptar_solicitud' solicitud.id %}">Aceptar</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+

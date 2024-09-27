@@ -54,6 +54,68 @@ select.form-control {
     background-color: #fff;
 }
 
+/* Estilos del formulario de rastreo */
+.formulario-rastreo {
+    margin-top: 20px;
+}
+
+.input-solicitud, .btn-rastreo {
+    padding: 10px;
+    margin: 10px 0;
+    display: block;
+    width: 100%;
+    max-width: 300px;
+}
+
+/* Estilo para el pop-up */
+.popup-hidden {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    padding: 20px;
+    max-width: 80%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.popup-visible {
+    display: block;
+}
+
+.popup-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.popup-error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.popup-success h3, .popup-error h3 {
+    margin-top: 0;
+}
+
+.popup-success p, .popup-error p {
+    margin-bottom: 0;
+}
+
+#close-popup {
+    margin-top: 10px;
+    padding: 5px 10px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+}
 
 
 /* Responsive Design */
@@ -70,3 +132,4 @@ select.form-control {
         font-size: 1rem;
     }
 }
+
