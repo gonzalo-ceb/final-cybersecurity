@@ -1,3 +1,6 @@
+import json
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.contrib.auth import login
@@ -7,7 +10,7 @@ from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 from django.http import BadHeaderError, JsonResponse
 from django.utils import timezone
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.core.mail import send_mail
 import random
 from django.views import View
@@ -15,22 +18,29 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout
-from .forms import CustomUserCreationForm, CustomAuthenticationForm
-from .models import SolicitudServicio, Ruta
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, SolicitudServicioForm
+from .models import SolicitudServicio, Ruta, Camion, ServicioAsignado, Cliente, Transportista
 
 User = get_user_model()
+
 
 class UserRegisterView(FormView):
     template_name = 'register.html'
     form_class = CustomUserCreationForm
 
     def form_valid(self, form):
-        form.save()
+        # Guardar el usuario
+        user = form.save()
 
+        # Comprobar el tipo de usuario y guardar en la tabla correspondiente
+        if user.user_type == 'cliente':
+            Cliente.objects.create(nombre=user.username, telefono="999999999", usuario=user)
+        elif user.user_type == 'transportista':
+            Transportista.objects.create(nombre=user.username, licencia_conducir="AB12345", telefono="999999999")
+
+        # Mostrar mensaje de éxito y redirigir
         messages.success(self.request, 'Se ha registrado correctamente, redirigiendo a inicio de sesión...')
-
-        return self.render_to_response(self.get_context_data(form=form))
-
+        return redirect('login')
 def logout_view(request):
     logout(request)
 
@@ -38,6 +48,7 @@ def logout_view(request):
         del request.session['messages']
 
     return redirect('home')
+
 
 class UserLoginView(LoginView):
     template_name = 'login.html'
@@ -83,6 +94,7 @@ class OTPForm(forms.Form):
 
 class VerifyOTPView(View):
     OTP_VALIDITY_PERIOD = timedelta(minutes=5)
+
     def get(self, request):
         form = OTPForm()
 
@@ -127,6 +139,7 @@ class VerifyOTPView(View):
 
         return render(request, 'verify_otp.html', {'form': form})
 
+
 def resend_otp_view(request):
     user_id = request.session.get('otp_user_id')
 
@@ -152,26 +165,117 @@ def resend_otp_view(request):
 
     return JsonResponse({'message': 'Nuevo OTP enviado con éxito.', 'time_remaining': 300})
 
+
 class HomeView(TemplateView):
     template_name = 'home.html'
 
+
 @login_required
 def crear_solicitud(request):
-    if request.method == "POST":
-        origen_id = request.POST.get("origen")
-        destino_id = request.POST.get("destino")
-        ruta = Ruta.objects.filter(id=origen_id).first()
+    form = SolicitudServicioForm()
+    solicitudes = SolicitudServicio.objects.filter(cliente=request.user)
 
-        if ruta:
-            nueva_solicitud = SolicitudServicio(
-                cliente=request.user,
-                ruta=ruta,
-                estado='pendiente'
+    if request.method == 'POST':
+        form = SolicitudServicioForm(request.POST)
+        if form.is_valid():
+            solicitud = form.save(commit=False)
+            solicitud.cliente = request.user
+            solicitud.estado = 'pendiente'
+            solicitud.peso = Decimal(form.cleaned_data['peso'])
+            solicitud.calcular_precio()
+            solicitud.save()
+            messages.success(request, f'Solicitud enviada correctamente. Número de seguimiento: {solicitud.numero_seguimiento}')
+            return redirect('crear_solicitud')
+
+    return render(request, 'solicitud_servicio.html', {'form': form, 'solicitudes': solicitudes})
+
+def get_distancia_ruta(request, ruta_id):
+    try:
+        ruta = Ruta.objects.get(id=ruta_id)
+        return JsonResponse({'distancia': str(ruta.distancia_km)})
+    except Ruta.DoesNotExist:
+        return JsonResponse({'error': 'Ruta no encontrada'}, status=404)
+
+
+@login_required
+def rastrear_solicitud(request):
+    if request.method == 'POST':
+        id_solicitud = request.POST.get('id_solicitud')
+
+        if not id_solicitud:
+            messages.error(request, 'Número de solicitud no proporcionado.')
+            return redirect('crear_solicitud')  # Redirige al formulario de solicitud
+
+        try:
+            solicitud = SolicitudServicio.objects.get(numero_seguimiento=id_solicitud)
+            # Muestra los detalles de la solicitud en un mensaje
+            mensaje = (
+                f"Número de seguimiento: {solicitud.numero_seguimiento}<br>"
+                f"Estado: {solicitud.estado}<br>"
+                f"Peso: {solicitud.peso} kg<br>"
+                f"Precio calculado: ${solicitud.precio:.2f}<br>"
+                f"Ruta: {solicitud.ruta.origen} -> {solicitud.ruta.destino}"
             )
-            nueva_solicitud.save()
-            return redirect('solicitud_exitosa')
-        else:
-            return render(request, 'solicitud_servicio.html', {'rutas': Ruta.objects.all(), 'error': 'Ruta no encontrada'})
+            messages.success(request, mensaje)
+        except SolicitudServicio.DoesNotExist:
+            messages.error(request, 'Solicitud no encontrada.')
 
-    rutas = Ruta.objects.all()
-    return render(request, 'solicitud_servicio.html', {'rutas': rutas})
+        return redirect('crear_solicitud')  # Redirige al formulario de solicitud
+
+    return redirect('crear_solicitud')
+
+
+@login_required
+def transportista_solicitudes(request):
+    if request.user.user_type != 'transportista':
+        return redirect('home')  # Redirige si no es un transportista
+
+    solicitudes = SolicitudServicio.objects.filter(estado='pendiente')
+    camiones = Camion.objects.filter(transportista__nombre=request.user)
+
+    if request.method == 'POST':
+        camion_id = request.POST.get('camion')
+        camion = Camion.objects.get(id=camion_id)
+        solicitud_id = request.POST.get('solicitud_id')
+        solicitud = SolicitudServicio.objects.get(id=solicitud_id)
+
+        # Asignar el camión y cambiar el estado de la solicitud
+        ServicioAsignado.objects.create(solicitud=solicitud, camion=camion, transportista=request.user.transportista)
+        solicitud.estado = 'asignado'
+        solicitud.save()
+
+        messages.success(request, f'Solicitud {solicitud.id} asignada al camión {camion.matricula}.')
+        return redirect('transportista_solicitudes')
+
+    return render(request, 'transportista_solicitudes.html', {'solicitudes': solicitudes, 'camiones': camiones})
+
+
+@login_required
+def transportista_aceptar_solicitud(request, solicitud_id):
+    if request.user.user_type != 'transportista':
+        messages.error(request, "No tienes permiso para aceptar solicitudes.")
+        return redirect('transportista_solicitudes')
+
+    solicitud = get_object_or_404(SolicitudServicio, id=solicitud_id, estado='pendiente')
+
+    camiones = Camion.objects.filter(transportista__nombre=request.user.username)
+
+    if request.method == 'POST':
+        camion_id = request.POST.get('camion')
+        camion = get_object_or_404(Camion, id=camion_id, transportista__nombre=request.user.username)
+
+        # Asignar el camión y transportista a la solicitud
+        servicio_asignado = ServicioAsignado.objects.create(
+            solicitud=solicitud,
+            camion=camion,
+            transportista=request.user.transportista
+        )
+
+        # cambiar el estado de la solicitud a "asignado"
+        solicitud.estado = 'asignado'
+        solicitud.save()
+
+        messages.success(request, f"Solicitud {solicitud.id} ha sido aceptada y se ha asignado el camión {camion.matricula}.")
+        return redirect('transportista_solicitudes')
+
+    return render(request, 'transportista_aceptar_solicitud.html', {'solicitud': solicitud, 'camiones': camiones})

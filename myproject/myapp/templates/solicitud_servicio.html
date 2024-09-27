@@ -1,43 +1,165 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="form_container">
-        <div class="form_box">
-            <h2>Solicitar Servicio de Transporte</h2>
-
-            {% if request.method == "POST" and messages %}
-                <div id="messages">
-                    {% for message in messages %}
-                        <div class="message {{ message.tags }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <form method="POST" action="{% url 'crear_solicitud' %}">
-                {% csrf_token %}
-				<br>
-                <div class="form-group">
-                    <label for="origen">Desde</label>
-                    <select name="origen" id="origen" class="form-control">
-                        <option value="" disabled selected>Selecciona el origen</option>
-                        {% for ruta in rutas %}
-                            <option value="{{ ruta.id }}">{{ ruta.origen }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-				<br>
-                <div class="form-group">
-                    <label for="destino">Hasta</label>
-                    <select name="destino" id="destino" class="form-control">
-                        <option value="" disabled selected>Selecciona el destino</option>
-                        {% for ruta in rutas %}
-                            <option value="{{ ruta.id }}">{{ ruta.destino }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-				<br>
-                <button type="submit" class="btn_submit">Solicitar Servicio</button>
-            </form>
-        </div>
+<form method="post">
+    {% csrf_token %}
+    <div>
+        <h3>Crear nueva solicitud</h3>
+        <label for="ruta">Seleccione una ruta:</label>
+        {{ form.ruta }}
+        <label for="peso">Peso (kg):</label>
+        {{ form.peso }}
+        <p><strong>Precio total: $<span id="precio-total">0.00</span></strong></p>
+        <button type="submit" name="crear_solicitud">Enviar solicitud</button>
     </div>
+
+</form>
+
+<form method="post" action="{% url 'rastrear_solicitud' %}" class="formulario-rastreo">
+    {% csrf_token %}
+    <h2>Rastreo de Solicitudes</h2>
+    <label for="id_solicitud">Número de Solicitud</label>
+    <input type="text" id="id_solicitud" name="id_solicitud" class="input-solicitud" placeholder="Ingresa el número de solicitud" required>
+    <button type="submit" class="btn-rastreo">Rastrear</button>
+</form>
+
+<div id="popup-message" class="popup-hidden">
+    <div id="popup-content"></div>
+    <button id="close-popup" onclick="closePopup()">Cerrar</button>
+</div>
+
+<h2>Mis Solicitudes</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Ruta</th>
+        <th>Precio</th>
+        <th>Número de Seguimiento</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for solicitud in solicitudes %}
+    <tr>
+        <td>{{ solicitud.id }}</td>
+        <td>{{ solicitud.ruta }}</td>
+        <td>${{ solicitud.precio }}</td>
+        <td>{{ solicitud.numero_seguimiento }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7">No tienes solicitudes registradas.</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const rutaSelect = document.getElementById('{{ form.ruta.id_for_label }}');
+        const precioTotalElement = document.getElementById('precio-total');
+
+        rutaSelect.addEventListener('change', function() {
+            const rutaId = rutaSelect.value;
+
+            if (rutaId) {
+                fetch(`/api/get-distancia-ruta/${rutaId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.distancia) {
+                            const distancia = parseFloat(data.distancia);
+                            const precioPorKm = 0.50;  // Definir el precio por km
+                            const precioTotal = distancia * precioPorKm;
+                            precioTotalElement.textContent = precioTotal.toFixed(2);
+                        } else {
+                            precioTotalElement.textContent = '0.00';
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else {
+                precioTotalElement.textContent = '0.00';
+            }
+        });
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mostrar el pop-up cuando haya un mensaje de éxito
+        {% if messages %}
+        var popup = document.getElementById('popup-message');
+        var popupContent = document.getElementById('popup-content');
+        {% for message in messages %}
+        popupContent.innerHTML = "{{ message }}";
+        {% endfor %}
+        popup.classList.add('popup-visible');
+        setTimeout(closePopup, 10000); // Ocultar después de 10 segundos
+        {% endif %}
+    });
+
+    document.getElementById('form-rastreo').addEventListener('submit', function(e) {
+        e.preventDefault(); // Evitar que el formulario recargue la página
+
+        const idSolicitud = document.getElementById('id_solicitud').value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch('/api/api/rastrear-solicitud/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ id_solicitud: idSolicitud })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showPopup(data.error);
+                } else {
+                    const detallesSolicitud = `
+                    <h3>Detalles de la solicitud</h3>
+                    <p>Número de seguimiento: ${data.numero_seguimiento}</p>
+                    <p>Estado: ${data.estado}</p>
+                    <p>Peso: ${data.peso} kg</p>
+                    <p>Precio calculado: $${data.precio}</p>
+                `;
+                    showPopup(detallesSolicitud);
+                }
+            })
+            .catch(error => {
+                showPopup('Error al rastrear la solicitud.');
+                console.error('Error:', error);
+            });
+    });
+
+    function showPopup(message) {
+        var popup = document.getElementById('popup-message');
+        var popupContent = document.getElementById('popup-content');
+        popupContent.innerHTML = message;
+        popup.classList.add('popup-visible');
+        setTimeout(() => {
+            popup.classList.remove('popup-visible');
+        }, 10000); // Ocultar después de 10 segundos
+    }
+
+    function closePopup() {
+        var popup = document.getElementById('popup-message');
+        popup.classList.remove('popup-visible');
+    }
+</script>
+{% if messages %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messages = {{ messages|safe }};
+        if (messages.length > 0) {
+            let messageHtml = '';
+            messages.forEach(msg => {
+                messageHtml += `<p>${msg}</p>`;
+            });
+            showPopup(messageHtml);
+        }
+    });
+</script>
+{% endif %}
+
+
 {% endblock %}
