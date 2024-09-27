@@ -2,8 +2,8 @@
 
 {% block content %}
 	<div class="form_container">
-		<div class="form_box sobrante ancho">
-			<h2>Solicitudes Pendientes para Transportistas</h2>
+		<div class="form_box sobrante ancho transportista">
+			<h2>Solicitudes Pendientes</h2>
 			<table class="table">
 				<thead>
 					<tr>
@@ -15,23 +15,81 @@
 					</tr>
 				</thead>
 				<tbody>
-				{% for solicitud in solicitudes %}
+				{% for solicitud in solicitudes_pendientes %}
 					<tr>
 						<td>{{ solicitud.id }}</td>
 						<td>{{ solicitud.cliente.username }}</td>
 						<td>{{ solicitud.ruta.origen }} -> {{ solicitud.ruta.destino }}</td>
 						<td>{{ solicitud.peso }}</td>
-						<td colspan="4" style="text-align: right;">
+						<td style="text-align: right;">
 							<a href="{% url 'transportista_aceptar_solicitud' solicitud.id %}" class="btn_action">Aceptar</a>
 						</td>
 					</tr>
 					{% empty %}
 					<tr>
-						<td colspan="4">No hay solicitudes pendientes.</td>
+						<td colspan="5">No hay solicitudes pendientes.</td>
 					</tr>
 				{% endfor %}
 				</tbody>
 			</table>
 		</div>
+
+		<div class="form_box sobrante ancho transportista">
+			<h2>Solicitudes Aceptadas</h2>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>ID Solicitud</th>
+						<th>Cliente</th>
+						<th>Ruta</th>
+						<th>Peso (kg)</th>
+						<th>Camión Asignado</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for solicitud in solicitudes_aceptadas %}
+					<tr>
+						<td>{{ solicitud.solicitud.id }}</td>
+						<td>{{ solicitud.solicitud.cliente.username }}</td>
+						<td>{{ solicitud.solicitud.ruta.origen }} -> {{ solicitud.solicitud.ruta.destino }}</td>
+						<td>{{ solicitud.solicitud.peso }}</td>
+						<td>{{ solicitud.camion.matricula }}</td>
+					</tr>
+					{% empty %}
+					<tr>
+						<td colspan="5">No hay solicitudes aceptadas.</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+
+		<div class="form_box sobrante ancho">
+			<h2>Tus Camiones</h2>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Matrícula</th>
+						<th>Capacidad (kg)</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for camion in camiones %}
+					<tr>
+						<td>{{ camion.matricula }}</td>
+						<td>{{ camion.capacidad }}</td>
+						</td>
+					</tr>
+					{% empty %}
+					<tr>
+						<td colspan="3">No tienes camiones registrados.</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+			<br>
+			<a href="{% url 'transportista_add_camion' %}" class="btn_action">Añadir Camión</a>
+		</div>
+
 	</div>
 {% endblock %}

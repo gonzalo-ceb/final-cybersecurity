@@ -16,7 +16,7 @@
 					{{ form.peso }}
 				</div>
 				<div class="form-group">
-					<p><strong>Precio estimado: $<span id="precio-total">0.00</span></strong></p>
+					<p><strong>Precio orientativo: <span id="precio-total">0.00€</span></strong></p>
 				</div>
 				<button type="button" id="mostrarPopup" class="btn_submit">Enviar solicitud</button>
 			</form>
@@ -26,17 +26,16 @@
 			<div class="popup-box">
 				<h2>Confirmar solicitud</h2>
 				<br>
-				<p>El precio oficial es: <strong>$<span id="precio-oficial-popup">XXX</span></strong></p>
+				<p>El precio final es: <strong>$<span id="precio-oficial-popup">XXX</span></strong></p>
 				<p>¿Desea confirmar la solicitud?</p>
 				<button id="aceptarSolicitud" class="btn_submit">Aceptar</button>
 				<button id="cancelarSolicitud" class="btn_cancel">Cancelar</button>
 			</div>
 		</div>
 
-		<!-- Solicitudes -->
 		<div class="form_box">
 			<h2>Rastreo de Solicitudes</h2>
-			<form method="POST" action="{% url 'rastrear_solicitud' %}">
+			<form id="rastrearForm">
 				{% csrf_token %}
 				<div class="form-group">
 					<label for="id_solicitud">Número de Solicitud</label>
@@ -45,6 +44,14 @@
 				</div>
 				<button type="submit" class="btn_submit">Rastrear</button>
 			</form>
+		</div>
+
+		<div id="popupResultado" class="popup-overlay">
+			<div class="popup-box">
+				<h2>Resultado de la Solicitud</h2>
+				<p id="resultadoSolicitud"></p>
+				<button id="cerrarPopup" class="btn_submit">Cerrar</button>
+			</div>
 		</div>
 
 		<div class="form_box sobrante">
@@ -86,6 +93,11 @@
             const precioTotalElement = document.getElementById('precio-total');
             const precioOficialInput = document.createElement('input');
 
+            const rastrearForm = document.getElementById('rastrearForm');
+            const popupResultado = document.getElementById('popupResultado');
+            const resultadoSolicitud = document.getElementById('resultadoSolicitud');
+            const cerrarPopup = document.getElementById('cerrarPopup');
+
             precioOficialInput.setAttribute('type', 'hidden');
             precioOficialInput.setAttribute('name', 'precio_oficial');
             document.getElementById('solicitudForm').appendChild(precioOficialInput);
@@ -117,8 +129,8 @@
                     .then(data => {
                         if (data.distancia) {
                             const distancia = parseFloat(data.distancia);
-                            const precioPorKm = 0.15;
-                            const precioPorKg = 0.50;
+                            const precioPorKm = 0.16;
+                            const precioPorKg = 2;
                             const precioTotal = (distancia * precioPorKm) + (peso * precioPorKg);
                             precioTotalElement.textContent = precioTotal.toFixed(2);
                         } else {
@@ -161,10 +173,8 @@
                             const precioOficial = parseFloat(data.precio_oficial).toFixed(2);
 
                             precioOficialPopup.textContent = precioOficial;
-
                             precioOficialInput.value = precioOficial;
-
-                            popupOverlay.classList.add('active'); // Mostrar el pop-up
+                            popupOverlay.classList.add('active');
                         } else {
                             alert('Error al calcular el precio oficial. El valor no es un número.');
                         }
@@ -175,13 +185,64 @@
             });
 
             document.getElementById('aceptarSolicitud').addEventListener('click', function () {
-                popupOverlay.classList.remove('active'); // Ocultar el pop-up
+                popupOverlay.classList.remove('active');
                 document.getElementById('solicitudForm').submit();
             });
 
             document.getElementById('cancelarSolicitud').addEventListener('click', function () {
-                popupOverlay.classList.remove('active'); // Ocultar el pop-up
+                popupOverlay.classList.remove('active');
+            });
+
+
+            rastrearForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const solicitudId = document.getElementById('id_solicitud').value;
+
+                if (!solicitudId) {
+                    alert("Por favor ingrese un número de solicitud.");
+                    return;
+                }
+
+                fetch('/api/rastrear-solicitud/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify({
+                        id_solicitud: solicitudId
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            resultadoSolicitud.innerHTML = `
+                    <strong>Número de Seguimiento:</strong> ${data.numero_seguimiento}<br>
+                    <strong>Estado:</strong> ${data.estado}<br>
+                    <strong>Peso:</strong> ${data.peso} kg<br>
+                    <strong>Precio:</strong> $${data.precio}<br>
+                    <strong>Ruta:</strong> ${data.ruta_origen} -> ${data.ruta_destino}
+                `;
+                            resultadoSolicitud.style.color = "green";
+                        } else {
+                            resultadoSolicitud.textContent = data.error;
+                            resultadoSolicitud.style.color = "red";
+                        }
+
+                        popupResultado.classList.add('active');
+                    })
+                    .catch(error => {
+                        console.error('Error al rastrear la solicitud:', error);
+                        resultadoSolicitud.textContent = "Ocurrió un error al rastrear la solicitud.";
+                        resultadoSolicitud.style.color = "red";
+                        popupResultado.classList.add('active');
+                    });
+            });
+
+            cerrarPopup.addEventListener('click', function () {
+                popupResultado.classList.remove('active');
             });
         });
+
 	</script>
 {% endblock %}

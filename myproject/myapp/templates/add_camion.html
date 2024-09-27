@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="form_container">
+        <div class="form_box peque">
+            <h2>Añadir Camión</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.matricula.label_tag }}
+                    {{ form.matricula }}
+                </div>
+                <div class="form-group">
+                    {{ form.capacidad.label_tag }}
+                    {{ form.capacidad }}
+                </div>
+                <button type="submit" class="btn_submit">Guardar Camión</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

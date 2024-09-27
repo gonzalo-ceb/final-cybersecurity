@@ -27,9 +27,9 @@
 
             {% if user.is_authenticated %}
                 {% if user.user_type == "cliente" %}
-                    <a href="{% url 'crear_solicitud' %}"><h4 class="gradiente">SOLICITUD</h4></a>
+                    <a href="{% url 'crear_solicitud' %}"><h4 class="gradiente">SOLICITUDES</h4></a>
                 {% elif user.user_type == "transportista" %}
-                    <a href="{% url 'transportista_solicitudes' %}"><h4 class="gradiente">MIS RUTAS</h4></a>
+                    <a href="{% url 'transportista_solicitudes' %}"><h4 class="gradiente">SOLICITUDES</h4></a>
                 {% endif %}
             {% endif %}
             <a href="#"><h4 class="gradiente">CONTACTO</h4></a>

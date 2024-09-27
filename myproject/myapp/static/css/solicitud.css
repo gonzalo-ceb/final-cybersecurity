@@ -23,21 +23,27 @@
 .ancho {
     max-width: 800px;
 }
+.peque {
+    max-width: 400px;
+}
+
+.transportista {
+    max-height: 26vh;
+}
 
 .sobrante {
     overflow-y: auto;
-    position: relative;
 }
 
-.sobrante::after {
-    content: '↓';
-    font-size: 1.5rem;
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    color: orange;
-    pointer-events: none;
-}
+/*.sobrante::after {*/
+/*    content: '↓';*/
+/*    font-size: 1.5rem;*/
+/*    position: absolute;*/
+/*    bottom: 10px;*/
+/*    right: 10px;*/
+/*    color: orange;*/
+/*    pointer-events: none;*/
+/*}*/
 
 .table {
     width: 100%;
@@ -135,7 +141,7 @@ select.form-control {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -143,6 +149,7 @@ select.form-control {
 }
 
 .popup-overlay.active {
+    display: flex;
     visibility: visible;
 }
 
@@ -157,6 +164,11 @@ select.form-control {
     z-index: 1001;
     position: relative;
 }
+
+#resultadoSolicitud {
+    line-height: 30px;
+}
+
 
 .popup-box button {
     display: inline-block;

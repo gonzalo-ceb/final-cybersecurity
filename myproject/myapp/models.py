@@ -70,8 +70,6 @@ class SolicitudServicio(models.Model):
         super().save(*args, **kwargs)
 
 
-
-
 class ServicioAsignado(models.Model):
     solicitud = models.OneToOneField(SolicitudServicio, on_delete=models.CASCADE)
     camion = models.ForeignKey(Camion, on_delete=models.CASCADE)

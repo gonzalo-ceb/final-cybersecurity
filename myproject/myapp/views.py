@@ -16,7 +16,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, SolicitudServicioForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, SolicitudServicioForm, CamionForm
 from .models import SolicitudServicio, Ruta, Camion, ServicioAsignado, Cliente, Transportista
 
 User = get_user_model()
@@ -36,6 +36,8 @@ class UserRegisterView(FormView):
 
         messages.success(self.request, 'Se ha registrado correctamente, redirigiendo a inicio de sesión...')
         return redirect('login')
+
+
 def logout_view(request):
     logout(request)
 
@@ -164,6 +166,7 @@ def resend_otp_view(request):
 class HomeView(TemplateView):
     template_name = 'home.html'
 
+
 @login_required
 def crear_solicitud(request):
     form = SolicitudServicioForm()
@@ -182,10 +185,12 @@ def crear_solicitud(request):
 
             solicitud.save()
 
-            messages.success(request, f'Solicitud enviada correctamente. Número de seguimiento: {solicitud.numero_seguimiento}')
+            messages.success(request,
+                             f'Solicitud enviada correctamente. Número de seguimiento: {solicitud.numero_seguimiento}')
             return redirect('crear_solicitud')
 
     return render(request, 'solicitud_servicio.html', {'form': form, 'solicitudes': solicitudes})
+
 
 def get_distancia_ruta(request, ruta_id):
     try:
@@ -198,28 +203,29 @@ def get_distancia_ruta(request, ruta_id):
 @login_required
 def rastrear_solicitud(request):
     if request.method == 'POST':
-        id_solicitud = request.POST.get('id_solicitud')
-
-        if not id_solicitud:
-            messages.error(request, 'Número de solicitud no proporcionado.')
-            return redirect('crear_solicitud')
-
         try:
+            data = json.loads(request.body)
+            id_solicitud = data.get('id_solicitud')
+
+            if not id_solicitud:
+                return JsonResponse({'error': 'Número de solicitud no proporcionado.'}, status=400)
+
             solicitud = SolicitudServicio.objects.get(numero_seguimiento=id_solicitud)
-            mensaje = (
-                f"Número de seguimiento: {solicitud.numero_seguimiento}<br>"
-                f"Estado: {solicitud.estado}<br>"
-                f"Peso: {solicitud.peso} kg<br>"
-                f"Precio calculado: ${solicitud.precio:.2f}<br>"
-                f"Ruta: {solicitud.ruta.origen} -> {solicitud.ruta.destino}"
-            )
-            messages.success(request, mensaje)
+            return JsonResponse({
+                'success': True,
+                'numero_seguimiento': solicitud.numero_seguimiento,
+                'estado': solicitud.estado,
+                'peso': float(solicitud.peso),
+                'precio': float(solicitud.precio),
+                'ruta_origen': solicitud.ruta.origen,
+                'ruta_destino': solicitud.ruta.destino
+            })
+
         except SolicitudServicio.DoesNotExist:
-            messages.error(request, 'Solicitud no encontrada.')
-
-        return redirect('crear_solicitud')
-
-    return redirect('crear_solicitud')
+            return JsonResponse({'error': 'Solicitud no encontrada.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Método no permitido.'}, status=405)
 
 
 @login_required
@@ -227,8 +233,17 @@ def transportista_solicitudes(request):
     if request.user.user_type != 'transportista':
         return redirect('home')
 
-    solicitudes = SolicitudServicio.objects.filter(estado='pendiente')
-    camiones = Camion.objects.filter(transportista__nombre=request.user.username)
+    try:
+        transportista = Transportista.objects.get(nombre=request.user.username)
+    except Transportista.DoesNotExist:
+        messages.error(request, "No se ha encontrado un transportista asociado a tu cuenta.")
+        return redirect('home')
+
+    solicitudes_pendientes = SolicitudServicio.objects.filter(estado='pendiente')
+
+    solicitudes_aceptadas = ServicioAsignado.objects.filter(transportista=transportista)
+
+    camiones = Camion.objects.filter(transportista=transportista)
 
     if request.method == 'POST':
         camion_id = request.POST.get('camion')
@@ -236,14 +251,18 @@ def transportista_solicitudes(request):
         solicitud_id = request.POST.get('solicitud_id')
         solicitud = SolicitudServicio.objects.get(id=solicitud_id)
 
-        ServicioAsignado.objects.create(solicitud=solicitud, camion=camion, transportista=request.user.transportista)
+        ServicioAsignado.objects.create(solicitud=solicitud, camion=camion, transportista=transportista)
         solicitud.estado = 'asignado'
         solicitud.save()
 
         messages.success(request, f'Solicitud {solicitud.id} asignada al camión {camion.matricula}.')
         return redirect('transportista_solicitudes')
 
-    return render(request, 'transportista_solicitudes.html', {'solicitudes': solicitudes, 'camiones': camiones})
+    return render(request, 'transportista_solicitudes.html', {
+        'solicitudes_pendientes': solicitudes_pendientes,
+        'solicitudes_aceptadas': solicitudes_aceptadas,
+        'camiones': camiones
+    })
 
 
 @login_required
@@ -252,27 +271,35 @@ def transportista_aceptar_solicitud(request, solicitud_id):
         messages.error(request, "No tienes permiso para aceptar solicitudes.")
         return redirect('transportista_solicitudes')
 
+    try:
+        transportista = Transportista.objects.get(nombre=request.user.username)
+    except Transportista.DoesNotExist:
+        messages.error(request, "No se ha encontrado un transportista asociado a tu cuenta.")
+        return redirect('transportista_solicitudes')
+
     solicitud = get_object_or_404(SolicitudServicio, id=solicitud_id, estado='pendiente')
 
-    camiones = Camion.objects.filter(transportista__nombre=request.user.username)
+    camiones = Camion.objects.filter(transportista=transportista)
 
     if request.method == 'POST':
         camion_id = request.POST.get('camion')
-        camion = get_object_or_404(Camion, id=camion_id, transportista__nombre=request.user.username)
+        camion = get_object_or_404(Camion, id=camion_id, transportista=transportista)
 
         servicio_asignado = ServicioAsignado.objects.create(
             solicitud=solicitud,
             camion=camion,
-            transportista=request.user.transportista
+            transportista=transportista
         )
 
         solicitud.estado = 'asignado'
         solicitud.save()
 
-        messages.success(request, f"Solicitud {solicitud.id} ha sido aceptada y se ha asignado el camión {camion.matricula}.")
+        messages.success(request,
+                         f"Solicitud {solicitud.id} ha sido aceptada y se ha asignado el camión {camion.matricula}.")
         return redirect('transportista_solicitudes')
 
     return render(request, 'transportista_aceptar_solicitud.html', {'solicitud': solicitud, 'camiones': camiones})
+
 
 def calcular_precio_oficial(request):
     if request.method == 'POST':
@@ -281,10 +308,8 @@ def calcular_precio_oficial(request):
             ruta_id = data.get('ruta_id')
             peso = Decimal(data.get('peso'))
 
-            # Verifica que la ruta exista
             ruta = Ruta.objects.get(id=ruta_id)
 
-            # Cálculo del precio
             precio_por_km = Decimal('0.15')
             precio_por_kg = Decimal('2')
             distancia = ruta.distancia_km
@@ -297,3 +322,28 @@ def calcular_precio_oficial(request):
             return JsonResponse({'error': str(e)}, status=400)
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@login_required
+def add_camion(request):
+    if request.user.user_type != 'transportista':
+        return redirect('home')
+
+    # Obtener el transportista
+    try:
+        transportista = Transportista.objects.get(nombre=request.user.username)
+    except Transportista.DoesNotExist:
+        messages.error(request, "No se ha encontrado un transportista asociado a tu cuenta.")
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = CamionForm(request.POST)
+        if form.is_valid():
+            camion = form.save(commit=False)
+            camion.transportista = transportista
+            camion.save()
+            messages.success(request, f'Camión {camion.matricula} añadido correctamente.')
+            return redirect('transportista_solicitudes')
+    else:
+        form = CamionForm()
+
+    return render(request, 'add_camion.html', {'form': form})

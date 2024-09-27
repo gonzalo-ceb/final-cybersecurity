@@ -3,13 +3,13 @@ from decimal import Decimal
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import CustomUser, SolicitudServicio, Ruta
+from .models import CustomUser, SolicitudServicio, Ruta, Camion
+
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
         fields = ['username', 'email', 'user_type', 'password1', 'password2']
-
 
     def __init__(self, *args, **kwargs):
         super(CustomUserCreationForm, self).__init__(*args, **kwargs)
@@ -44,3 +44,17 @@ class SolicitudServicioForm(forms.ModelForm):
         if not peso or peso <= 0:
             raise forms.ValidationError('Debes ingresar un peso válido mayor que cero.')
         return Decimal(peso)
+
+class CamionForm(forms.ModelForm):
+    class Meta:
+        model = Camion
+        fields = ['matricula', 'capacidad']
+
+        widgets = {
+            'matricula': forms.TextInput(attrs={'class': 'form-control'}),
+            'capacidad': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'matricula': 'Matrícula',
+            'capacidad': 'Capacidad (kg)',
+        }
