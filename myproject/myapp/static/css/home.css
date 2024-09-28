@@ -104,7 +104,166 @@
     background-repeat: no-repeat;
 }
 
-.contenedor_servicios {
-    width: 100vw;
-    height: 700px;
+
+
+
+
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Sección de Servicios */
+.servicios {
+    padding: 60px 0;
+    background-color: #f4f4f4;
+    text-align: center;
+}
+
+.servicios h2 {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    color: #222020;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.servicios-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.servicio {
+    background-color: #fff;
+    padding: 30px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    flex: 1 1 calc(33.333% - 40px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.servicio:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.servicio i {
+    font-size: 3.5rem;
+    margin: 20px;
+    color: #fd3427;
+}
+
+.servicio h3 {
+    font-size: 1.5rem;
+    color: #222020;
+    margin-bottom: 15px;
+}
+
+.servicio p {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* Sección de Testimonios */
+.testimonios {
+    padding: 60px 0;
+    background-color: #fff;
+    text-align: center;
+}
+
+.testimonios h2 {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    color: #222020;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.testimonios-slider {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding-bottom: 20px;
+    scroll-behavior: smooth;
+}
+
+.testimonio {
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 10px;
+    min-width: 250px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-family: 'Montserrat', sans-serif;
+}
+
+.testimonio p {
+    font-style: italic;
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.testimonio h4 {
+    color: #fd3427;
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+
+/* Responsividad */
+@media (max-width: 992px) {
+    .servicios-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .servicio {
+        flex: 1 1 80%;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenedor_descripcion h2 {
+        margin: 0px 20px;
+        font-size: 1.2rem;
+    }
+
+    .contenedor_descripcion a {
+        margin-top: 50px;
+    }
+
+    .contenedor_descripcion a h3 {
+        font-size: 1.2rem;
+        padding: 10px 20px;
+    }
+
+    .titulo {
+        font-size: 5rem;
+    }
+
+    .servicios h2, .testimonios h2 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .testimonios-slider {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .testimonio {
+        min-width: 80%;
+    }
+
+    .contenedor_descripcion h2 {
+        margin: 0px 20px;
+    }
+
+    .transicion {
+        height: 200px;
+    }
 }

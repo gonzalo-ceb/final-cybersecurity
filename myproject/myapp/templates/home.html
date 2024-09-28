@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
 	<div class="contenedor_principal">
 		<div class="contenedor_titulo">
@@ -26,21 +26,49 @@
 	<div class="transicion">
 	</div>
 
-	<div class="contenedor_servicios">
+
+<!-- Servicios -->
+<section id="servicios" class="servicios">
+	<div class="container">
 		<h2>Nuestros Servicios</h2>
-		<div class="features">
-			<div class="feature">
-				<h3>Soluciones logísticas</h3>
-				<p>Soluciones confiables para grandes empresas.</p>
+		<div class="servicios-grid">
+			<div class="servicio">
+				<i class="fas fa-truck"></i>
+				<h3>Soluciones Logísticas</h3>
+				<p>Gestión eficiente de tu cadena de suministro para maximizar la productividad.</p>
 			</div>
-			<div class="feature">
-				<h3>Servicios de transporte</h3>
-				<p>Llegamos a cualquier parte del mundo.</p>
+			<div class="servicio">
+				<i class="fas fa-plane"></i>
+				<h3>Servicios de Transporte</h3>
+				<p>Transporte seguro y puntual a nivel nacional e internacional.</p>
 			</div>
-			<div class="feature">
-				<h3>Expertos en entregas</h3>
-				<p>Entrega rápida y segura cuando más lo necesitas.</p>
+			<div class="servicio">
+				<i class="fas fa-clock"></i>
+				<h3>Expertos en Entregas</h3>
+				<p>Entrega rápida y confiable para todas tus necesidades de envío.</p>
 			</div>
 		</div>
 	</div>
+</section>
+
+<!-- Testimonios -->
+<section id="testimonios" class="testimonios">
+	<div class="container">
+		<h2>Qué Dicen Nuestros Clientes</h2>
+		<div class="testimonios-slider">
+			<div class="testimonio">
+				<p>"RoadMasters ha transformado nuestra logística. Sus servicios son puntuales y confiables."</p>
+				<h4>Juan Pérez</h4>
+			</div>
+			<div class="testimonio">
+				<p>"Excelente atención al cliente y soluciones a medida para nuestras necesidades de transporte."</p>
+				<h4>María López</h4>
+			</div>
+			<div class="testimonio">
+				<p>"Recomiendo RoadMasters por su profesionalismo y eficiencia en cada entrega."</p>
+				<h4>Carlos García</h4>
+			</div>
+		</div>
+	</div>
+</section>
 {% endblock %}
