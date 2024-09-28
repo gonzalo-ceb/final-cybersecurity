@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-ea914!&^@#n&1&vx-$+356lfk1@%!n(%v4n*%30631#u4^a%of
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['sandraglez11.pythonanywhere.com']
 
 AUTH_USER_MODEL = 'myapp.CustomUser'
 LOGIN_REDIRECT_URL = 'home'
