@@ -93,8 +93,7 @@
 }
 
 
-
-.transicion {
+.transicion1 {
     width: 100vw;
     height: 400px;
     background-image: url("../images/carretera2.jpg");
@@ -103,122 +102,297 @@
     background-attachment: fixed;
     background-repeat: no-repeat;
 }
-
-
-
-
-
-
-.container {
-    width: 90%;
-    max-width: 1200px;
-    margin: 0 auto;
+.transicion2 {
+    width: 100vw;
+    height: 400px;
+    background-image: url("../images/carretera3.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
 }
 
-/* Sección de Servicios */
-.servicios {
-    padding: 60px 0;
-    background-color: #f4f4f4;
-    text-align: center;
-}
 
-.servicios h2 {
-    font-size: 2.5rem;
-    margin-bottom: 40px;
-    color: #222020;
-    font-family: 'Montserrat', sans-serif;
-}
 
-.servicios-grid {
+.mision {
+    min-height: 70vh;
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 20px 0;
+}
+
+.misionContenedor {
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+    width: 35vw;
+    min-width: 300px;
+    padding: 10px;
+    margin: 20px;
+    border: 3px solid orange;
+    border-radius: 15px;
+    text-align: center;
+    position: relative;
+    animation: moveBorder 5s linear infinite;
+}
+
+.misionContenedor::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    z-index: -1;
+}
+
+.misionContenedor .content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.misionContenedor img {
+    height: 150px;
+    padding: 5px;
+    opacity: 0.9;
+    border-radius: 10px;
+}
+
+.misionContenedor .textContent {
+    width: 60%;
+    text-align: left;
+}
+
+.mision h3 {
+    color: black;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.mision p {
+    color: black;
+    font-size: 1rem;
+    margin: 0 20px;
+    text-align: left;
+}
+
+@keyframes moveBorder {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+
+
+.testimonios {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    position: relative;
     flex-wrap: wrap;
 }
 
-.servicio {
-    background-color: #fff;
-    padding: 30px 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    flex: 1 1 calc(33.333% - 40px);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.servicio:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-}
-
-.servicio i {
-    font-size: 3.5rem;
-    margin: 20px;
-    color: #fd3427;
-}
-
-.servicio h3 {
-    font-size: 1.5rem;
-    color: #222020;
-    margin-bottom: 15px;
-}
-
-.servicio p {
-    font-size: 1rem;
-    color: #666;
-}
-
-/* Sección de Testimonios */
-.testimonios {
-    padding: 60px 0;
-    background-color: #fff;
+.testimonios h2 {
     text-align: center;
 }
 
-.testimonios h2 {
-    font-size: 2.5rem;
-    margin-bottom: 40px;
-    color: #222020;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.testimonios-slider {
+.testimonioContenedor {
+    position: relative;
     display: flex;
-    overflow-x: auto;
-    gap: 20px;
-    padding-bottom: 20px;
-    scroll-behavior: smooth;
+    flex-wrap: wrap;
+    align-content: center;
+    width: 90%;
+    height: 22vh;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    border-radius: 60px;
+    padding: 30px;
+    color: black;
+    overflow: hidden;
+    transition: color 0.5s ease;
 }
 
+.testimonioContenedor::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #ffe53b, #ff2525);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: -1;
+    border-radius: inherit;
+    will-change: opacity;
+}
+.testimonioContenedor:hover {
+    color: white;
+}
+
+.testimonioContenedor:hover::before {
+    opacity: 1;
+}
+
+
+.testimonioContenedor img {
+    width: 12%;
+}
 .testimonio {
-    background-color: #f4f4f4;
-    padding: 20px;
-    border-radius: 10px;
-    min-width: 250px;
-    flex-shrink: 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    font-family: 'Montserrat', sans-serif;
+    text-align: center;
+    width: 88%;
+    overflow: scroll;
 }
-
+.testimonio h3 {
+    margin: 30px 0;
+    font-size: 1.5rem;
+}
 .testimonio p {
     font-style: italic;
-    margin-bottom: 15px;
-    color: #555;
-}
-
-.testimonio h4 {
-    color: #fd3427;
-    font-size: 1rem;
-    margin-top: 10px;
+    margin-left: 55px;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
 }
 
 
-/* Responsividad */
+
+.contacto {
+    min-height: 80vh;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+.contacto h2 {
+    text-align: center;
+}
+.datosEmpresa {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    padding: 0 20px;
+}
+.contacto form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+.contacto form input {
+    display: block;
+}
+.contacto form input[type="text"], .contacto form input[type="email"], .contacto form input[type="password"], .contacto form input[type="date"], .contacto form input[type="tel"], .contacto form select{
+    width: 100%;
+    padding: 20px;
+    margin-bottom: 50px;
+    border-radius: 5px;
+    border: 1px solid orange;
+    font-size: 16px;
+}
+.contacto form input[type="text"]:focus, .contacto form input[type="email"]:focus, .contacto form input[type="password"]:focus, .contacto form input[type="date"]:focus, .contacto form input[type="tel"]:focus, .contacto form select:focus{
+    outline: none;
+    border: 3px solid orange;
+}
+.contacto form textarea {
+    width: 100%;
+    padding: 20px;
+    margin-bottom: 50px;
+    border-radius: 5px;
+    border: 1px solid orange;
+    font-size: 16px;
+    overflow: scroll;
+}
+.contacto form textarea:focus {
+    outline: none;
+    border: 3px solid orange;
+}
+.contacto form input[type="submit"] {
+    border-radius: 5px;
+    width: 200px;
+    margin: 0px auto;
+    background: none;
+    border: 2px solid orange;
+    color: black;
+    padding: 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.contacto form input[type="submit"]:hover {
+    background: linear-gradient(45deg, #ffe53b, #ff2525);
+    color: white;
+}
+.contenedorDireccion {
+    width: 45%;
+    max-width: 700px;
+    display: flex;
+    margin-right: 200px;
+    margin-top: 90px;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10px;
+}
+
+.contenedorIframe {
+    width: 100%;
+    border: 2px solid orange;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    padding-bottom: 56.25%;
+}
+iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+.direccion {
+    text-align: center;
+    margin-top: 20px;
+}
+
+
+.scrollDown {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 10%;
+}
+
+
+
+@media (max-width: 1700px) {
+    .mision {
+        flex-direction: column;
+    }
+    .misionContenedor {
+        width: 98vw;
+        max-width: none;
+    }
+}
+
 @media (max-width: 992px) {
     .servicios-grid {
         flex-direction: column;
         align-items: center;
     }
+
 
     .servicio {
         flex: 1 1 80%;

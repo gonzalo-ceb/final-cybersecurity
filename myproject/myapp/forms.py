@@ -58,3 +58,9 @@ class CamionForm(forms.ModelForm):
             'matricula': 'Matrícula',
             'capacidad': 'Capacidad (kg)',
         }
+
+class ContactForm(forms.Form):
+    nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'placeholder': 'Nombre'}))
+    apellidos = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'placeholder': 'Apellidos'}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'placeholder': 'Email'}))
+    consulta = forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Mensaje'}), required=False)

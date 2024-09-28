@@ -8,16 +8,18 @@ from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 from django.http import BadHeaderError, JsonResponse
 from django.utils import timezone
-from django.shortcuts import redirect, render, get_object_or_404
-from django.core.mail import send_mail
+from django.shortcuts import redirect, get_object_or_404
 import random
 from django.views import View
-from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, SolicitudServicioForm, CamionForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, SolicitudServicioForm, CamionForm, ContactForm
 from .models import SolicitudServicio, Ruta, Camion, ServicioAsignado, Cliente, Transportista
+from django.shortcuts import render
+from django.core.mail import send_mail
+from django.conf import settings
+
 
 User = get_user_model()
 
@@ -163,8 +165,32 @@ def resend_otp_view(request):
     return JsonResponse({'message': 'Nuevo OTP enviado con éxito.', 'time_remaining': 300})
 
 
-class HomeView(TemplateView):
-    template_name = 'home.html'
+
+def HomeView(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            nombre = form.cleaned_data['nombre']
+            apellidos = form.cleaned_data['apellidos']
+            email = form.cleaned_data['email']
+            consulta = form.cleaned_data['consulta']
+
+            subject = f'Consulta de {nombre} {apellidos}'
+            message = f'Nombre: {nombre}\nApellidos: {apellidos}\nEmail: {email}\nMensaje:\n{consulta}'
+            from_email = settings.EMAIL_HOST_USER
+            recipient_list = ['gonzalo.celaya.ceb@immune.institute', 'sandra.gonzalez.ceb@immune.institute']
+
+            try:
+                send_mail(subject, message, from_email, recipient_list)
+                return JsonResponse({'status': 'success'})
+            except Exception as e:
+                print(f'Error al enviar correo: {e}')
+                return JsonResponse({'status': 'error'}, status=500)
+    else:
+        form = ContactForm()
+
+    return render(request, 'home.html', {'form': form})
+
 
 
 @login_required
@@ -328,7 +354,6 @@ def add_camion(request):
     if request.user.user_type != 'transportista':
         return redirect('home')
 
-    # Obtener el transportista
     try:
         transportista = Transportista.objects.get(nombre=request.user.username)
     except Transportista.DoesNotExist:
