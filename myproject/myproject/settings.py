@@ -34,7 +34,7 @@ SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 
 # Redirección HTTP a HTTPS
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = True #cambiar a False en local
 
 SECURE_HSTS_SECONDS = 31536000  # Un año
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -50,7 +50,7 @@ SECRET_KEY = 'django-insecure-ea914!&^@#n&1&vx-$+356lfk1@%!n(%v4n*%30631#u4^a%of
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['sandraglez11.pythonanywhere.com']
+ALLOWED_HOSTS = ['sandraglez11.pythonanywhere.com',  '127.0.0.1']
 
 AUTH_USER_MODEL = 'myapp.CustomUser'
 LOGIN_REDIRECT_URL = 'home'
