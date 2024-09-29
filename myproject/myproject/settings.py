@@ -16,8 +16,9 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Cambia a tu servidor SMTP
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'sandra.gonzalez.ceb@immune.institute'
@@ -27,40 +28,50 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# Cookies seguras
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# Security settings
+SECRET_KEY = config('SECRET_KEY')
+
+# DEBUG setting
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+ALLOWED_HOSTS = ['sandraglez11.pythonanywhere.com', '127.0.0.1']
+
+# Cookies settings
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 
-# Redirección HTTP a HTTPS
-SECURE_SSL_REDIRECT = True #cambiar a False en local
-
-SECURE_HSTS_SECONDS = 31536000  # Un año
+# SSL settings
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
-# Política de Seguridad de Contenidos (CSP)
+# Content Security Policy (CSP)
+
 CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'", "https://apis.google.com")
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ea914!&^@#n&1&vx-$+356lfk1@%!n(%v4n*%30631#u4^a%of'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['sandraglez11.pythonanywhere.com',  '127.0.0.1']
-
-AUTH_USER_MODEL = 'myapp.CustomUser'
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
-TWO_FACTOR_LOGIN_URL = 'two_factor:login'
+CSP_SCRIPT_SRC = (
+    "'self'",
+    "https://trusted-scripts.com",
+    "https://cdnjs.cloudflare.com",
+    "https://ajax.googleapis.com",
+    "https://apis.google.com",
+    "https://maps.googleapis.com"
+)
+CSP_STYLE_SRC = ("'self'", "https://trusted-styles.com", "https://fonts.googleapis.com")
+CSP_IMG_SRC = ("'self'", "data:", "https://maps.gstatic.com", "https://maps.googleapis.com")
+CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
+CSP_CONNECT_SRC = ("'self'", "https://api.yourservice.com", "https://maps.googleapis.com")
+CSP_FRAME_SRC = ("'self'", "https://trusted-iframe-source.com", "https://maps.google.com", "https://www.google.com", "https://maps.google.com")
+CSP_OBJECT_SRC = ("'none'",)
+CSP_BASE_URI = ("'self'",)
+CSP_REPORT_URI = "/csp-violation-report-endpoint/"
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'csp',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -81,8 +92,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
     'django_otp.middleware.OTPMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware'
 ]
 
 ROOT_URLCONF = 'myproject.urls'
@@ -105,10 +116,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -116,10 +125,8 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -135,37 +142,26 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'es-es'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'myapp/static'),  # Ajusta esto a la ubicación correcta
+    os.path.join(BASE_DIR, 'myapp/static'),
 ]
-
-# Para producción, necesitas definir dónde se recogerán los archivos estáticos
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
+# Message tags
 from django.contrib.messages import constants as messages
 
 MESSAGE_TAGS = {
@@ -174,4 +170,24 @@ MESSAGE_TAGS = {
     messages.SUCCESS: 'success',
     messages.WARNING: 'warning',
     messages.ERROR: 'error',
+}
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/django_error.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
 }
