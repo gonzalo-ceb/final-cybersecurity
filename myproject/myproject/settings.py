@@ -34,7 +34,7 @@ SECRET_KEY = config('SECRET_KEY')
 # DEBUG setting
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['sandraglez11.pythonanywhere.com', '127.0.0.1']
+ALLOWED_HOSTS = ['sandraglez11.pythonanywhere.com', '127.0.0.1', 'gonzalo6.pythonanywhere.com']
 
 # Cookies settings
 SESSION_COOKIE_SECURE = not DEBUG
