@@ -44,7 +44,10 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 # SECURE_HSTS_PRELOAD = True
 
-ALLOWED_HOSTS = ['0.0.0.0']
+ALLOWED_HOSTS = ['localhost',         # Para acceso local
+                 '127.0.0.1',        # Para acceso local
+                 'tu_direccion_IP',   # IP pública de la instancia EC2
+                 'ec2-34-245-79-224.eu-west-1.compute.amazonaws.com',]
 
 AUTH_USER_MODEL = 'myapp.CustomUser'
 LOGIN_REDIRECT_URL = 'home'
