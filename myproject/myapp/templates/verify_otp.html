@@ -1,31 +1,29 @@
-
 {% extends 'base.html' %}
 
 {% block content %}
     <div class="form_container">
         <div class="form_box">
+            {% if messages %}
+                <div id="messages">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <h2>Consulte su email</h2>
 
             <p>El código OTP expira en <span id="countdown">{{ time_remaining }}</span> segundos.</p>
-			<br><br>
+            <br><br>
 
-            <form id="otp-form" method="post">
+            <form id="otp-form" method="post" {% if otp_success %}style="display:none;"{% endif %}>
                 {% csrf_token %}
                 {{ form.as_p }}
                 <button type="submit" id="verify-btn" class="btn_submit">Verificar</button>
             </form>
+            <br>
 
             <button id="resend-btn" class="btn_submit" style="display: none;" onclick="resendOTP()">Volver a enviar código</button>
-
-            {% if request.method == "POST" %}
-                {% if messages %}
-                    <ul>
-                        {% for message in messages %}
-                            <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endif %}
         </div>
     </div>
 
@@ -37,8 +35,8 @@
                 timeRemaining -= 1;
                 document.getElementById('countdown').innerText = timeRemaining;
             } else {
-                document.getElementById('verify-btn').style.display = 'none';
                 document.getElementById('resend-btn').style.display = 'inline-block';
+                document.getElementById('verify-btn').style.display = 'none';
             }
         }
 
@@ -56,15 +54,21 @@
             .then(data => {
                 if (data.message) {
                     alert(data.message);
+
                     timeRemaining = data.time_remaining;
                     document.getElementById('countdown').innerText = timeRemaining;
-
-                    document.getElementById('verify-btn').style.display = 'inline-block';
                     document.getElementById('resend-btn').style.display = 'none';
+                    document.getElementById('verify-btn').style.display = 'inline-block';
                 }
             })
             .catch(error => console.error('Error al reenviar el OTP:', error));
         }
+
+        {% if otp_success %}
+        setTimeout(function () {
+            window.location.href = "{% url 'home' %}";
+        }, 2000);
+        {% endif %}
     </script>
 {% endblock %}
 

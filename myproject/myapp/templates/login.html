@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 
 {% block content %}
@@ -6,7 +5,7 @@
         <div class="form_box sobrante">
             <h2>Iniciar Sesión</h2>
 
-            {% if request.method == "POST" and messages %}
+            {% if messages %}
                 <div id="messages">
                     {% for message in messages %}
                         <div class="message {{ message.tags }}">{{ message }}</div>
@@ -30,5 +29,7 @@
         </div>
     </div>
 {% endblock %}
+
+
 
 

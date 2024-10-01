@@ -7,6 +7,7 @@ from .models import CustomUser, SolicitudServicio, Ruta, Camion
 
 
 class CustomUserCreationForm(UserCreationForm):
+    acepta_terminos = forms.BooleanField(required=True, label="Acepto los términos y condiciones")
     class Meta:
         model = CustomUser
         fields = ['username', 'email', 'user_type', 'password1', 'password2']
@@ -16,6 +17,7 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['username'].widget.attrs.update({'class': 'form-control'})
         self.fields['email'].widget.attrs.update({'class': 'form-control'})
         self.fields['user_type'].widget.attrs.update({'class': 'form-control'})
+        self.fields['acepta_terminos'].widget.attrs.update({'class': 'form-check-input'})
 
 
 class CustomAuthenticationForm(AuthenticationForm):

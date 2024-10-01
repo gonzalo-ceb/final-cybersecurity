@@ -1,7 +1,7 @@
+# myapp/models.py
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from decimal import Decimal
 
 class CustomUser(AbstractUser):
     USER_TYPES = (
@@ -11,23 +11,10 @@ class CustomUser(AbstractUser):
     user_type = models.CharField(max_length=15, choices=USER_TYPES, default='cliente')
 
     otp_code = models.IntegerField(null=True, blank=True)
-    otp_verified = models.BooleanField(default=False)
-    otp_created_at = models.DateTimeField(null=True, blank=True)
 
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='customuser_set',
-        blank=True,
-        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-        verbose_name='groups',
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='customuser_permissions',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        verbose_name='user permissions',
-    )
+    otp_verified = models.BooleanField(default=False)
+
+    otp_created_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.username} ({self.get_user_type_display()})"
@@ -41,7 +28,6 @@ class Transportista(models.Model):
     def __str__(self):
         return self.nombre
 
-
 class Camion(models.Model):
     matricula = models.CharField(max_length=10, unique=True)
     capacidad = models.DecimalField(max_digits=10, decimal_places=2)
@@ -49,7 +35,6 @@ class Camion(models.Model):
 
     def __str__(self):
         return f"{self.matricula} - {self.transportista.nombre}"
-
 
 class Ruta(models.Model):
     origen = models.CharField(max_length=100)
@@ -59,6 +44,7 @@ class Ruta(models.Model):
     def __str__(self):
         return f"{self.origen} -> {self.destino}"
 
+from decimal import Decimal
 
 class SolicitudServicio(models.Model):
     cliente = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -93,7 +79,6 @@ class ServicioAsignado(models.Model):
     def __str__(self):
         return f"Servicio {self.solicitud.id} asignado a {self.camion.matricula} ({self.transportista.nombre})"
 
-
 class Factura(models.Model):
     solicitud = models.OneToOneField(SolicitudServicio, on_delete=models.CASCADE)
     fecha_factura = models.DateField(auto_now_add=True)
@@ -101,7 +86,6 @@ class Factura(models.Model):
 
     def __str__(self):
         return f"Factura {self.id} - Total: {self.total}"
-
 
 class Cliente(models.Model):
     nombre = models.CharField(max_length=100)

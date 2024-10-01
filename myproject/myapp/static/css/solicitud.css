@@ -18,7 +18,7 @@
     text-align: center;
     margin-bottom: 10px;
     width: 100%;
-    max-width: 500px;
+    max-width: 550px;
 }
 .ancho {
     max-width: 800px;
@@ -31,19 +31,11 @@
     max-height: 26vh;
 }
 
+
 .sobrante {
     overflow-y: auto;
 }
 
-/*.sobrante::after {*/
-/*    content: '↓';*/
-/*    font-size: 1.5rem;*/
-/*    position: absolute;*/
-/*    bottom: 10px;*/
-/*    right: 10px;*/
-/*    color: orange;*/
-/*    pointer-events: none;*/
-/*}*/
 
 .table {
     width: 100%;

@@ -6,7 +6,7 @@ from django.contrib.auth import login
 from django import forms
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required
-from django.http import BadHeaderError, JsonResponse
+from django.http import BadHeaderError, JsonResponse, HttpResponse
 from django.utils import timezone
 from django.shortcuts import redirect, get_object_or_404
 import random
@@ -15,10 +15,17 @@ from django.views.generic.edit import FormView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, SolicitudServicioForm, CamionForm, ContactForm
-from .models import SolicitudServicio, Ruta, Camion, ServicioAsignado, Cliente, Transportista
+from .models import SolicitudServicio, Ruta, Camion, ServicioAsignado, Cliente, Transportista, Factura
 from django.shortcuts import render
 from django.core.mail import send_mail
 from django.conf import settings
+import io
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer
+
 
 
 User = get_user_model()
@@ -36,15 +43,30 @@ class UserRegisterView(FormView):
         elif user.user_type == 'transportista':
             Transportista.objects.create(nombre=user.username, licencia_conducir="AB12345", telefono="999999999")
 
-        messages.success(self.request, 'Se ha registrado correctamente, redirigiendo a inicio de sesión...')
-        return redirect('login')
+        messages.success(self.request, 'Se ha registrado correctamente. Redirigiendo a inicio de sesión...')
+
+        return render(self.request, self.template_name, {
+            'form': form,
+            'registration_success': True
+        })
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Ha habido un error en el registro. Revisa los datos e inténtalo de nuevo.')
+        return render(self.request, self.template_name, {'form': form})
 
 
 def logout_view(request):
-    logout(request)
+    storage = messages.get_messages(request)
+    for _ in storage:
+        pass
 
-    if 'messages' in request.session:
-        del request.session['messages']
+    if request.user.is_authenticated:
+        user = request.user
+        user.otp_code = None
+        user.otp_created_at = None
+        user.save()
+
+    logout(request)
 
     return redirect('home')
 
@@ -100,8 +122,9 @@ class VerifyOTPView(View):
         user_id = request.session.get('otp_user_id')
         user = User.objects.get(id=user_id)
 
+        # Calculamos el tiempo restante del OTP
         expiration_time = user.otp_created_at + self.OTP_VALIDITY_PERIOD
-        time_remaining = (expiration_time - timezone.now()).total_seconds()
+        time_remaining = max((expiration_time - timezone.now()).total_seconds(), 0)
 
         return render(request, 'verify_otp.html', {'form': form, 'time_remaining': int(time_remaining)})
 
@@ -117,26 +140,47 @@ class VerifyOTPView(View):
                     messages.error(request, "Usuario no encontrado.")
                     return redirect('login')
 
-                if timezone.now() > user.otp_created_at + self.OTP_VALIDITY_PERIOD:
+                # Calculamos el tiempo restante del OTP
+                expiration_time = user.otp_created_at + self.OTP_VALIDITY_PERIOD
+                time_remaining = max((expiration_time - timezone.now()).total_seconds(), 0)
+
+                # Verificamos si el OTP ha expirado
+                if timezone.now() > expiration_time:
                     messages.error(request, "El código OTP ha expirado.")
                     return redirect('login')
 
+                # Verificamos si el OTP es correcto
                 if user.otp_code == otp_input:
                     user.otp_verified = True
                     user.save()
 
+                    # Autenticar al usuario
                     login(request, user)
 
+                    # Borrar el OTP de la sesión
                     del request.session['otp_user_id']
 
+                    # Añadir mensaje de éxito
                     messages.success(request, "Código OTP verificado correctamente.")
-                    return redirect('home')
+
+                    # En lugar de redirigir inmediatamente, renderizamos la página con otp_success=True
+                    return render(request, 'verify_otp.html', {
+                        'form': form,
+                        'otp_success': True,  # Indicamos que el OTP fue verificado correctamente
+                        'time_remaining': int(time_remaining)
+                    })
                 else:
+                    # OTP incorrecto, mostramos error pero mantenemos el tiempo restante
                     messages.error(request, "Código OTP incorrecto.")
             else:
                 messages.error(request, "No se encontró el usuario o el código OTP ha expirado.")
 
-        return render(request, 'verify_otp.html', {'form': form})
+        # Volvemos a renderizar el formulario con el tiempo restante
+        return render(request, 'verify_otp.html', {
+            'form': form,
+            'time_remaining': int(time_remaining)
+        })
+
 
 
 def resend_otp_view(request):
@@ -210,6 +254,7 @@ def crear_solicitud(request):
                 solicitud.precio = Decimal(precio_oficial)
 
             solicitud.save()
+            Factura.objects.create(solicitud=solicitud, total=solicitud.precio)
 
             messages.success(request,
                              f'Solicitud enviada correctamente. Número de seguimiento: {solicitud.numero_seguimiento}')
@@ -252,6 +297,63 @@ def rastrear_solicitud(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({'error': 'Método no permitido.'}, status=405)
+
+
+def descargar_factura(request, factura_id):
+    factura = get_object_or_404(Factura, id=factura_id)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="factura_{factura.id}.pdf"'
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+
+    elements = []
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle('title', fontSize=24, alignment=TA_CENTER, spaceAfter=20)
+    elements.append(Paragraph("Factura", title_style))
+
+    info = f"""
+    <b>ID de la Factura:</b> {factura.id}<br/>
+    <b>Fecha de emisión:</b> {factura.fecha_factura}<br/>
+    <b>Total:</b> €{factura.total}<br/>
+    """
+    elements.append(Paragraph(info, styles['Normal']))
+    elements.append(Spacer(1, 12))
+
+    table_data = [
+        ['Descripción', 'Cantidad', 'Precio Unitario', 'Precio Total'],
+        ['Envío', '1', f'€{factura.total}', f'€{factura.total}'],
+    ]
+
+    table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ])
+
+    factura_table = Table(table_data)
+    factura_table.setStyle(table_style)
+    elements.append(factura_table)
+
+    elements.append(Spacer(1, 12))
+    footer = """
+    Gracias por su compra. Si tiene alguna consulta sobre esta factura, 
+    póngase en contacto con nuestro equipo de soporte.
+    """
+    elements.append(Paragraph(footer, styles['Normal']))
+
+    doc.build(elements)
+
+    response.write(buffer.getvalue())
+    buffer.close()
+
+    return response
 
 
 @login_required
