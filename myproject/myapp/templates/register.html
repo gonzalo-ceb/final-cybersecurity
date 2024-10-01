@@ -1,110 +1,292 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="form_container">
-	<div class="form_box sobrante">
-		<h2>Registro</h2>
-		
-		{% if messages %}
-		<div id="messages">
-			{% for message in messages %}
-			<div class="message {{ message.tags }}">{{ message }}</div>
-			{% endfor %}
-		</div>
-		<br><br>
-		{% endif %}
-		
-		<form method="post">
-			{% csrf_token %}
-			
-			<label for="{{ form.username.id_for_label }}"><strong>Nombre de usuario:</strong></label>
-			{{ form.username }}
-			{% if form.username.errors %}
-			<div class="error">
-				{{ form.username.errors }}
-			</div>
-			{% endif %}
-			<br><br>
-			
-			<label for="{{ form.email.id_for_label }}">Correo electrónico:</label>
-			{{ form.email }}
-			{% if form.email.errors %}
-			<div class="error">
-				{{ form.email.errors }}
-			</div>
-			{% endif %}
-			<br><br>
-			
-			<div class="form-group">
-				<label for="{{ form.user_type.id_for_label }}"><strong>Tipo de usuario:</strong></label>
-				{{ form.user_type }}
-				{% if form.user_type.errors %}
-				<div class="error">
-					{{ form.user_type.errors }}
+	<div class="form_container">
+		<div class="form_box sobrante">
+			<h2>Registro</h2>
+
+			{% if messages %}
+				<div id="messages">
+					{% for message in messages %}
+						<div class="message {{ message.tags }}">{{ message }}</div>
+					{% endfor %}
 				</div>
+				<br><br>
+			{% endif %}
+
+			<form method="post">
+				{% csrf_token %}
+
+				<label for="{{ form.username.id_for_label }}"><strong>Nombre de usuario:</strong></label>
+				{{ form.username }}
+				{% if form.username.errors %}
+					<div class="error">
+						{{ form.username.errors }}
+					</div>
 				{% endif %}
-			</div>
-			
-			<label for="{{ form.password1.id_for_label }}">Contraseña:</label>
-			{{ form.password1 }}
-			{% if form.password1.errors %}
-			<div class="error">
-				{{ form.password1.errors }}
-			</div>
-			{% endif %}
-			<br><br>
-			
-			<label for="{{ form.password2.id_for_label }}">Confirmación de contraseña:</label>
-			{{ form.password2 }}
-			{% if form.password2.errors %}
-			<div class="error">
-				{{ form.password2.errors }}
-			</div>
-			{% endif %}
-			<br><br>
-			
-			<div>
-				<input type="checkbox" id="acepta_terminos" name="acepta_terminos">
-				<label for="acepta_terminos">
-					Acepto los <a href="#" id="showTerms">términos y condiciones</a>
-				</label>
-			</div>
-			
-			<div id="popupTerms" class="popup-overlay">
-				<div class="popup-box">
-					<h2>Términos y Condiciones</h2>
-					<p>
-						Aquí puedes agregar los términos y condiciones de tu sitio.
-						El usuario debe leer y aceptar estos términos para continuar.
-					</p>
-					<button id="closePopupTerms" class="btn_submit">Cerrar</button>
+				<br><br>
+
+				<label for="{{ form.email.id_for_label }}">Correo electrónico:</label>
+				{{ form.email }}
+				{% if form.email.errors %}
+					<div class="error">
+						{{ form.email.errors }}
+					</div>
+				{% endif %}
+				<br><br>
+
+				<div class="form-group">
+					<label for="{{ form.user_type.id_for_label }}"><strong>Tipo de usuario:</strong></label>
+					{{ form.user_type }}
+					{% if form.user_type.errors %}
+						<div class="error">
+							{{ form.user_type.errors }}
+						</div>
+					{% endif %}
 				</div>
-			</div>
-			
-			<br>
-			<button type="submit" class="btn_submit">Registrarse</button>
-		</form>
-		<br><br>
-		<p>¿Ya tienes cuenta? <a href="{% url 'login' %}" class="btn_link gradiente_peque">Iniciar sesión</a></p>
+				<br>
+
+				<label for="{{ form.password1.id_for_label }}">Contraseña:</label>
+				{{ form.password1 }}
+				{% if form.password1.errors %}
+					<div class="error">
+						{{ form.password1.errors }}
+					</div>
+				{% endif %}
+				<br><br>
+
+				<label for="{{ form.password2.id_for_label }}">Confirmación de contraseña:</label>
+				{{ form.password2 }}
+				{% if form.password2.errors %}
+					<div class="error">
+						{{ form.password2.errors }}
+					</div>
+				{% endif %}
+				<br><br>
+
+				<div>
+					<input type="checkbox" id="acepta_terminos" name="acepta_terminos">
+					<label for="acepta_terminos">
+						Acepto los <a href="#" id="showTerms" class="gradiente_peque">términos y condiciones</a>
+					</label>
+				</div>
+
+				<div id="popupTerms" class="popup-overlay">
+					<div class="popup-box terminos">
+						<h1>Términos y Condiciones de RoadMasters</h1>
+
+						<p>Bienvenido a RoadMasters, el sitio web de gestión de transporte y envíos. Estos términos y
+							condiciones
+							regulan el uso de nuestro sitio web y los servicios que ofrecemos. Al utilizar este sitio
+							web, aceptas
+							cumplir con estos términos. Si no estás de acuerdo con alguna de estas condiciones, no
+							deberías utilizar
+							nuestros servicios.</p>
+
+						<h2>1. Información General</h2>
+						<p>RoadMasters es un servicio de transporte de mercancías que conecta transportistas con
+							clientes que requieren
+							envíos. Ofrecemos soluciones para la gestión de envíos a nivel local y nacional.</p>
+
+						<h2>2. Uso del Sitio Web</h2>
+						<ul>
+							<li>El acceso al sitio web está permitido temporalmente, y nos reservamos el derecho de
+								retirar o modificar
+								el servicio sin previo aviso.
+							</li>
+							<li>El uso indebido de nuestro sitio está prohibido. Esto incluye, entre otros, hackear,
+								inyectar código
+								malicioso o realizar intentos no autorizados de acceder a áreas restringidas del sitio.
+							</li>
+							<li>No debes utilizar nuestros servicios para ningún propósito ilegal o no autorizado, ni
+								violar ninguna ley
+								en tu jurisdicción al usar RoadMasters.
+							</li>
+						</ul>
+
+						<h2>3. Registro y Cuentas</h2>
+						<ul>
+							<li>Para utilizar ciertos servicios, deberás registrarte en nuestra plataforma. La
+								información proporcionada
+								debe ser veraz, completa y actualizada.
+							</li>
+							<li>Como usuario registrado, eres responsable de la confidencialidad de tus credenciales de
+								inicio de
+								sesión.
+							</li>
+							<li>RoadMasters no se hace responsable por cualquier pérdida o daño resultante del acceso no
+								autorizado a tu
+								cuenta por terceros.
+							</li>
+						</ul>
+
+						<h2>4. Responsabilidad del Transporte</h2>
+						<ul>
+							<li>RoadMasters actúa como intermediario entre los transportistas y los clientes. No somos
+								responsables por
+								el daño o pérdida de la mercancía durante el transporte.
+							</li>
+							<li>Es responsabilidad del transportista asegurar que las mercancías sean entregadas de
+								acuerdo con los
+								términos acordados entre el cliente y el transportista.
+							</li>
+							<li>Los clientes deben asegurarse de que los detalles del envío proporcionados a través de
+								nuestra
+								plataforma son precisos.
+							</li>
+						</ul>
+
+						<h2>5. Política de Pagos</h2>
+						<ul>
+							<li>El pago por los servicios de transporte se realizará a través de las pasarelas de pago
+								proporcionadas
+								por RoadMasters.
+							</li>
+							<li>Las tarifas pueden variar según el tipo de servicio, distancia y peso del envío. Todos
+								los precios
+								incluyen impuestos cuando corresponda.
+							</li>
+							<li>En caso de disputa sobre el pago, los clientes deben comunicarse con nosotros
+								directamente para resolver
+								el problema.
+							</li>
+						</ul>
+
+						<h2>6. Política de Cancelación</h2>
+						<ul>
+							<li>Los clientes pueden cancelar los pedidos antes de que el transportista haya aceptado el
+								envío. Una vez
+								que el transportista acepte, la cancelación puede estar sujeta a tarifas.
+							</li>
+							<li>Si un transportista cancela un pedido después de aceptarlo, se tomarán las medidas
+								necesarias para
+								asegurar que el cliente no incurra en costos adicionales.
+							</li>
+						</ul>
+
+						<h2>7. Política de Privacidad</h2>
+						<p>En RoadMasters, estamos comprometidos con la protección de tu privacidad. Esta política
+							describe cómo
+							recopilamos, utilizamos y protegemos la información personal que proporcionas al usar
+							nuestros
+							servicios.</p>
+
+						<h3>7.1. Información que Recopilamos</h3>
+						<ul>
+							<li>Información personal que proporcionas al registrarte, como nombre, dirección de correo
+								electrónico,
+								número de teléfono y detalles de pago.
+							</li>
+							<li>Información relacionada con el uso de nuestros servicios, como historial de pedidos y
+								preferencias de
+								envío.
+							</li>
+							<li>Datos técnicos, como la dirección IP, tipo de dispositivo y navegador utilizado para
+								acceder a nuestro
+								sitio web.
+							</li>
+						</ul>
+
+						<h3>7.2. Uso de la Información</h3>
+						<ul>
+							<li>Utilizamos tu información para facilitar la prestación de nuestros servicios, como la
+								gestión de pedidos
+								y la coordinación con los transportistas.
+							</li>
+							<li>Podemos utilizar tu información de contacto para enviarte notificaciones importantes
+								sobre tu cuenta o
+								servicios que has solicitado.
+							</li>
+							<li>También podemos utilizar datos de uso del sitio para mejorar nuestra plataforma y
+								personalizar tu
+								experiencia.
+							</li>
+						</ul>
+
+						<h3>7.3. Compartir Información con Terceros</h3>
+						<ul>
+							<li>No compartimos tu información personal con terceros, salvo cuando sea necesario para
+								prestar los
+								servicios solicitados (por ejemplo, proporcionar tu información a transportistas para
+								que realicen los
+								envíos).
+							</li>
+							<li>Podemos compartir información con autoridades competentes si es requerido por ley o para
+								proteger
+								nuestros derechos legales.
+							</li>
+						</ul>
+
+						<h3>7.4. Seguridad de los Datos</h3>
+						<p>Tomamos medidas de seguridad adecuadas para proteger tu información personal contra acceso no
+							autorizado,
+							alteración, divulgación o destrucción. Esto incluye el uso de cifrado y otras tecnologías de
+							protección de
+							datos.</p>
+
+						<h3>7.5. Retención de Datos</h3>
+						<p>Conservaremos tu información personal mientras sea necesario para cumplir con los propósitos
+							descritos en
+							esta política o según lo requerido por la ley.</p>
+
+						<h3>7.6. Derechos del Usuario</h3>
+						<p>Tienes derecho a acceder, corregir o eliminar la información personal que tengamos sobre ti.
+							También puedes
+							solicitar que dejemos de procesar tu información en ciertos casos, excepto cuando tengamos
+							una base legal
+							para hacerlo.</p>
+
+						<h2>8. Limitación de Responsabilidad</h2>
+						<ul>
+							<li>En ningún caso RoadMasters será responsable de cualquier pérdida directa, indirecta,
+								incidental,
+								especial o consecuente derivada del uso de nuestro sitio web o servicios.
+							</li>
+							<li>No garantizamos que el sitio web esté libre de errores, virus u otros componentes
+								dañinos.
+							</li>
+						</ul>
+
+						<h2>9. Modificaciones a los Términos</h2>
+						<p>Nos reservamos el derecho de modificar estos términos y condiciones en cualquier momento.
+							Cualquier cambio
+							será efectivo inmediatamente después de su publicación en el sitio web. Es tu
+							responsabilidad revisar estos
+							términos periódicamente.</p>
+
+						<h2>10. Ley Aplicable</h2>
+						<p>Estos términos y condiciones se rigen por las leyes de España. Cualquier disputa derivada de
+							estos términos
+							será resuelta ante los
+							<button id="closePopupTerms" class="btn_submit" type="button">Cerrar</button>
+					</div>
+				</div>
+
+				<br>
+				<button type="submit" class="btn_submit">Registrarse</button>
+			</form>
+			<br><br>
+			<p>¿Ya tienes cuenta? <a href="{% url 'login' %}" class="btn_link gradiente_peque">Iniciar sesión</a></p>
+		</div>
 	</div>
-</div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        {% if registration_success %}
-        setTimeout(function () {
-            window.location.href = "{% url 'login' %}";
-        }, 2500);
-        {% endif %}
+	<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            {% if registration_success %}
+                setTimeout(function () {
+                    window.location.href = "{% url 'login' %}";
+                }, 2500);
+            {% endif %}
 
-        document.getElementById('showTerms').addEventListener('click', function(event) {
-            event.preventDefault();  // Evitar comportamiento predeterminado del enlace
-            document.getElementById('popupTerms').classList.add('active');
+            document.getElementById('showTerms').addEventListener('click', function (event) {
+                event.preventDefault();
+                document.getElementById('popupTerms').classList.add('active');
+            });
+
+            document.getElementById('closePopupTerms').addEventListener('click', function () {
+                event.preventDefault();
+                document.getElementById('popupTerms').classList.remove('active');
+            });
         });
-
-        document.getElementById('closePopupTerms').addEventListener('click', function() {
-            document.getElementById('popupTerms').classList.remove('active');
-        });
-    });
-</script>
+	</script>
 {% endblock %}

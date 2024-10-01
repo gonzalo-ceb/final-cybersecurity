@@ -84,3 +84,8 @@ footer {
     width: 100%;
     color: white;
 }
+
+.terminos {
+    max-height: 80vh;
+    overflow: scroll;
+}
