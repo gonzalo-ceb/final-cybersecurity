@@ -32,17 +32,7 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
 
-# SESSION_COOKIE_SECURE = not DEBUG
-# CSRF_COOKIE_SECURE = not DEBUG
-# SESSION_COOKIE_HTTPONLY = True
-# # CSRF_COOKIE_HTTPONLY = True
-#
-# # SECURE_SSL_REDIRECT = not DEBUG
-# SECURE_HSTS_SECONDS = 31536000
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
 
 ALLOWED_HOSTS = ['localhost',         # Para acceso local
                  '127.0.0.1',        # Para acceso local
@@ -148,7 +138,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'myapp/static/')
 
 
 
